@@ -563,7 +563,8 @@ async function vistaSucursales(){
   const opts=unidades.map(u=>`<option value="${u.id}">${escHtml(u.nombre)}</option>`).join('');
   const nombreUnidad=id=>{ const u=unidades.find(x=>x.id===id); return u?u.nombre:id; };
   const filas=(sucs||[]).map(s=>`<tr><td>${escHtml(s.nombre)}</td><td>${escHtml(nombreUnidad(s.unidad_negocio))}</td><td>${escHtml(s.alias)}</td>
-    <td><button class="btn-mini" style="border-color:#E5A0A0;color:#C81E1E" onclick="borrarSucursal('${s.unidad_negocio}','${s.id}','${escAttr(s.nombre)}')">🗑 Borrar</button></td></tr>`).join('');
+    <td><button class="btn-mini" onclick="duplicarSucursal('${s.unidad_negocio}','${s.id}','${escAttr(s.nombre)}')">📄 Duplicar</button>
+    <button class="btn-mini" style="border-color:#E5A0A0;color:#C81E1E" onclick="borrarSucursal('${s.unidad_negocio}','${s.id}','${escAttr(s.nombre)}')">🗑 Borrar</button></td></tr>`).join('');
   document.getElementById('mainContent').innerHTML=`
     <h2 class="sec">📍 Sucursales</h2>
     <p class="sec-desc">Cada sucursal pertenece a una unidad. El alias y la reseña son propios de la sucursal.</p>
@@ -598,6 +599,17 @@ window.borrarSucursal=async function(uid,sid,nombre){
   if(!confirm(`¿Borrar la sucursal "${nombre}"?\n\nEsta acción no se puede deshacer.`)) return;
   const { error }=await sb.rpc('borrar_sucursal',{u:uid, sid:sid});
   if(error){ alert('No se pudo borrar: '+error.message); return; }
+  await vistaSucursales();
+};
+window.duplicarSucursal=async function(uid,sid,nombre){
+  const nuevoNombre=prompt('Nombre de la nueva sucursal:', nombre+' (copia)');
+  if(nuevoNombre===null) return;
+  let nuevoId=prompt('Identificador corto de la nueva sucursal (sin espacios, ej: palermo_2):','');
+  if(nuevoId===null) return;
+  nuevoId=(nuevoId||'').trim().toLowerCase().replace(/[^a-z0-9_]/g,'_');
+  if(!nuevoId){ alert('El identificador no puede quedar vacío.'); return; }
+  const { error }=await sb.rpc('duplicar_sucursal',{ u:uid, sid:sid, nuevo_id:nuevoId, nuevo_nombre:nuevoNombre.trim() });
+  if(error){ alert('No se pudo duplicar: '+error.message); return; }
   await vistaSucursales();
 };
 
