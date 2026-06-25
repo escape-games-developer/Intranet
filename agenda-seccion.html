@@ -1,0 +1,532 @@
+<!-- ===================================================================
+     SECCIÓN AGENDA — para insertar en intranet.html
+     Cuatro bloques. Cada uno indica EXACTAMENTE dónde pegarlo.
+     Usa las clases CSS que ya existen (.suc-switch, .card, .field, etc.)
+     No inventa clases nuevas salvo prefijo .ag- para lo específico de la
+     planilla y el modal.
+=================================================================== -->
+
+
+<!-- ===================================================================
+     BLOQUE 1 — AGREGAR EN EL <nav id="navAsesor">
+     Ubicación: línea ~211, justo DESPUÉS del botón Cotizador.
+=================================================================== -->
+
+<button data-sec="agenda" onclick="tab('agenda',this)">📋 Agenda</button>
+
+
+<!-- ===================================================================
+     BLOQUE 2 — AGREGAR ESTOS ESTILOS dentro del <style> existente
+     (al final, antes del cierre de </style>)
+=================================================================== -->
+
+<style>
+/* ====== AGENDA ====== */
+.ag-banner{background:var(--amar);border:1px solid var(--amar-bd);border-left:4px solid var(--amar-bd);border-radius:13px;padding:13px 16px;font-size:13.5px;color:#7C5E10;margin-bottom:16px;display:flex;align-items:center;gap:10px}
+.ag-banner b{font-family:var(--display);font-size:15px;letter-spacing:.4px;display:block}
+.ag-banner .small{font-size:12px;margin-top:2px;display:block}
+.ag-banner .lnk{margin-left:auto;font-size:12.5px;font-weight:700;color:#7C5E10;text-decoration:underline;cursor:pointer;background:none;border:none;font-family:var(--body)}
+.ag-tools{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
+.ag-tools .lbl{font-family:var(--display);font-size:11px;font-weight:700;color:var(--gris);text-transform:uppercase;letter-spacing:.6px}
+.ag-tools .sp{flex:1}
+.ag-tools .btn-new{background:linear-gradient(160deg,var(--laser) -30%,var(--rojo) 60%);color:#fff;border:none;padding:9px 16px;border-radius:9px;font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 3px 12px rgba(200,30,30,.3);font-family:var(--body)}
+.ag-tools .btn-new:hover{background:var(--rojo-osc)}
+.ag-card{background:var(--card);border:1px solid var(--linea);border-radius:14px;padding:0;margin-bottom:14px;box-shadow:0 1px 2px rgba(22,22,29,.05),0 10px 30px rgba(22,22,29,.06);overflow:hidden}
+.ag-tbl{width:100%;border-collapse:collapse;font-size:13px}
+.ag-tbl th{font-family:var(--display);font-size:10.5px;text-transform:uppercase;letter-spacing:.5px;color:#374151;font-weight:700;padding:10px 6px;text-align:left;background:#FAFAF9;border-bottom:1px solid var(--linea)}
+.ag-tbl td{padding:9px 6px;border-bottom:1px solid #F0EDEA;vertical-align:middle}
+.ag-tbl tr.row{cursor:pointer}
+.ag-tbl tr.row:hover td{background:#FAFAF9}
+.ag-tbl tr.row.urgent td{background:#FEF8E0}
+.ag-tbl tr.row.urgent:hover td{background:#FCF3CD}
+.ag-tbl tr.row.warn td{background:#FBE9E9}
+.ag-tbl tr.row.warn:hover td{background:#F8DCDC}
+.ag-tbl tr.row.open td{background:#16161D !important;color:#fff}
+.ag-tbl tr.row.open .gris{color:#CFA6AA !important}
+.ag-tbl tr.row.open .chev{color:#fff;transform:rotate(180deg);display:inline-block}
+.ag-tbl .day{font-family:var(--display);font-weight:700;letter-spacing:.3px;font-size:12.5px;display:block}
+.ag-tbl .hour{color:#374151;font-size:11.5px;font-weight:600;display:block;margin-top:1px}
+.ag-tbl .gris{color:#374151;font-size:11.5px;font-weight:600}
+.ag-tbl .name{font-weight:700;font-size:13px}
+.ag-tbl .num{text-align:center;font-weight:600;color:#16161D}
+.ag-tbl .ic-ok{color:var(--verde);font-size:15px}
+.ag-tbl .ic-warn{color:var(--rojo);font-size:15px}
+.ag-tbl .ic-dot{color:#C9C4BF;font-size:13px}
+.ag-tbl .chev{color:var(--gris);font-size:16px}
+.ag-tbl .mpill{display:inline-block;font-family:var(--display);font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;letter-spacing:.5px;text-transform:uppercase}
+.ag-tbl .m-pro{background:#E6F1FB;color:#185FA5}
+.ag-tbl .m-neo{background:#E1F5EE;color:#0F6E56}
+.ag-tbl .m-max{background:#F3E8FF;color:#6B21A8}
+.ag-tbl .m-evt{background:#FBE9E9;color:#9E1414}
+.ag-tbl .m-ja{background:#FEF3C7;color:#7C5E10}
+
+.ag-exp{padding:16px 18px;border-bottom:3px solid #16161D;background:#FAFAF9}
+.ag-exp-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.ag-exp-block .lbl{font-family:var(--display);font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--gris);margin-bottom:6px;display:block}
+.ag-exp-line{font-size:12.5px;padding:3px 0;display:flex;align-items:center;gap:6px}
+.ag-exp-line .k{color:var(--gris);min-width:60px}
+.ag-pay{background:linear-gradient(150deg,#E9F7EE 0%,#D8F1E1 100%);border:1.5px solid #5CBE7E;border-radius:11px;padding:11px 14px;margin-bottom:14px;display:flex;align-items:center;gap:12px}
+.ag-pay .info{flex:1}
+.ag-pay .pl{font-size:11px;color:#0F6B33;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.ag-pay .pv{font-family:var(--display);font-size:20px;font-weight:700;color:var(--verde);line-height:1.1;margin-top:2px}
+.ag-pay .btn{background:var(--verde);color:#fff;border:none;padding:10px 16px;border-radius:9px;font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 3px 10px rgba(21,128,61,.3);font-family:var(--body);display:inline-flex;align-items:center;gap:6px}
+.ag-checks{display:grid;grid-template-columns:1fr 1fr;gap:4px 12px}
+.ag-checks label{display:flex;align-items:center;gap:6px;font-size:12.5px;cursor:pointer;padding:3px 0;color:#16161D;font-weight:500}
+.ag-checks input{width:15px;height:15px;accent-color:var(--rojo);cursor:pointer}
+.ag-exp-actions{padding:11px 18px;background:#16161D;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.ag-exp-actions .saved{font-size:12px;color:#9CC8A0;margin-right:auto;display:flex;align-items:center;gap:5px}
+.ag-exp-actions .b{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);color:#fff;padding:8px 13px;border-radius:8px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:var(--body);display:flex;align-items:center;gap:5px}
+.ag-exp-actions .b:hover{background:rgba(255,255,255,.22)}
+
+.ag-leg{font-size:11.5px;color:#374151;padding-left:4px;margin-top:8px}
+.ag-leg b{font-weight:700}
+
+/* ====== MODAL DE CARGA ====== */
+.ag-modal-bg{position:fixed;inset:0;background:rgba(11,11,17,.6);z-index:200;display:flex;align-items:flex-start;justify-content:center;padding:40px 20px;overflow-y:auto}
+.ag-modal{background:#fff;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.3);width:100%;max-width:780px;overflow:hidden;animation:agSlide .2s ease}
+@keyframes agSlide{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:none}}
+.ag-modal-top{padding:16px 22px;border-bottom:1px solid #F0EDEA;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.ag-modal-title{font-family:var(--display);font-size:16px;font-weight:700;letter-spacing:.6px;text-transform:uppercase}
+.ag-modal-sub{font-size:12px;color:var(--gris);margin-top:2px}
+.ag-modal-x{background:none;border:none;color:var(--gris);cursor:pointer;font-size:22px;padding:4px;line-height:1}
+.ag-modal-body{padding:18px 22px;max-height:calc(100vh - 240px);overflow-y:auto}
+.ag-modal-footer{padding:14px 22px;background:#FAFAF9;border-top:1px solid #F0EDEA;display:flex;gap:8px;justify-content:flex-end;align-items:center}
+.ag-modal-footer .req-note{font-size:11px;color:var(--gris);margin-right:auto}
+.ag-modal-footer .req-note span{color:var(--rojo);font-weight:700}
+.ag-h3{font-family:var(--display);font-size:13px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;margin:18px 0 10px;color:#374151;display:flex;align-items:center;gap:8px}
+.ag-h3:first-child{margin-top:0}
+.ag-h3::before{content:"";width:3px;height:13px;border-radius:2px;background:linear-gradient(180deg,var(--laser),var(--rojo-osc));box-shadow:0 0 6px rgba(255,45,63,.4)}
+.ag-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.ag-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.ag-modal .field{margin-bottom:0}
+.ag-modal .field label{display:block;font-size:11.5px;color:#374151;font-weight:600;margin-bottom:4px}
+.ag-modal .field label .opt{color:#9CA3AF;font-weight:500;font-size:10.5px;margin-left:4px}
+.ag-modal .field input,.ag-modal .field select,.ag-modal .field textarea{width:100%;padding:9px 11px;border:1.5px solid var(--linea);border-radius:9px;font-size:13.5px;background:#fff;font-family:var(--body)}
+.ag-modal .field input:focus,.ag-modal .field select:focus,.ag-modal .field textarea:focus{outline:none;border-color:var(--rojo);box-shadow:0 0 0 3px rgba(200,30,30,.12)}
+.ag-modal .field textarea{resize:vertical;min-height:54px;line-height:1.4}
+.ag-calc{background:linear-gradient(150deg,#E9F7EE 0%,#D8F1E1 100%);border:1.5px solid #5CBE7E;border-radius:11px;padding:13px 15px;margin:14px 0}
+.ag-calc .calc-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.ag-calc .calc-lbl{font-size:10.5px;color:#0F6B33;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.ag-calc .calc-val{font-family:var(--display);font-size:19px;font-weight:700;color:var(--verde);margin-top:2px}
+.ag-calc .calc-val.muted{color:#374151;font-size:16px}
+.ag-adnp{display:grid;grid-template-columns:78px 18px 78px 18px 78px 18px 1fr;gap:0;align-items:end}
+.ag-adnp .sep{font-family:var(--display);font-size:16px;font-weight:700;color:#9CA3AF;text-align:center;padding-bottom:10px}
+.ag-adnp .field input,.ag-adnp .field select{padding:9px 8px;font-size:13px;text-align:center}
+.ag-file{border:1.5px dashed #C9C4BF;border-radius:10px;padding:12px;text-align:center;background:#FAFAF9;cursor:pointer;font-size:12.5px;color:var(--gris)}
+.ag-file:hover{border-color:var(--rojo);background:#FBF4F4;color:var(--rojo)}
+.ag-hint{background:#E6F1FB;border:1px solid #9DC3E6;border-radius:9px;padding:9px 12px;font-size:12px;color:#185FA5;margin-bottom:12px}
+.ag-btn-cancel{background:#fff;border:1.5px solid var(--linea);color:#0B0B11;padding:9px 18px;border-radius:9px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--body)}
+.ag-btn-cancel:hover{border-color:var(--rojo);color:var(--rojo)}
+.ag-btn-save{background:var(--verde);color:#fff;border:none;padding:10px 22px;border-radius:9px;font-size:13.5px;font-weight:700;cursor:pointer;box-shadow:0 3px 10px rgba(21,128,61,.3);font-family:var(--body);display:flex;align-items:center;gap:6px}
+.ag-btn-save:hover{background:#0F5C2C}
+.ag-req::after{content:" *";color:var(--rojo)}
+@media(max-width:560px){.ag-exp-grid{grid-template-columns:1fr}.ag-grid-3,.ag-grid-2{grid-template-columns:1fr}.ag-adnp{grid-template-columns:1fr 1fr 1fr 1fr;gap:6px}.ag-adnp .sep{display:none}}
+</style>
+
+
+<!-- ===================================================================
+     BLOQUE 3 — AGREGAR ESTA SECTION dentro de <main>,
+     DESPUÉS de la sección cotizador (línea ~388)
+=================================================================== -->
+
+<section id="agenda">
+  <h2 class="sec">📋 Agenda</h2>
+  <p class="sec-desc">Planilla de chequeo de reservas. Tocá una fila para abrir el detalle y editar lo que cambie con el tiempo (cobro, alertas, contrato adjunto).</p>
+
+  <div class="ag-banner">
+    <i class="ti ti-bell" style="font-size:18px"></i>
+    <div><b>4 reservas para confirmar esta semana</b><span class="small">Eventos entre 10 y 7 días — toca mandarles el mensaje de confirmación.</span></div>
+    <button class="lnk" onclick="agFiltroUrgente()">Ver solo esas →</button>
+  </div>
+
+  <div class="ag-tools">
+    <span class="lbl">Tipo</span>
+    <div class="suc-switch">
+      <button class="on" onclick="agSetTipo('cumple',this)">Cumples</button>
+      <button onclick="agSetTipo('jjaa',this)">Juegos Abiertos</button>
+      <button onclick="agSetTipo('evento',this)">Eventos</button>
+    </div>
+    <span class="lbl" style="margin-left:6px">Sucursal</span>
+    <div class="suc-switch">
+      <button class="on" onclick="agSetSuc('caballito',this)">Caballito</button>
+      <button onclick="agSetSuc('nunez',this)">Núñez</button>
+    </div>
+    <div class="sp"></div>
+    <button class="btn-new" onclick="agAbrirModal()">+ Cargar reserva</button>
+  </div>
+
+  <div class="ag-tools" style="margin-bottom:14px">
+    <span class="lbl">Período</span>
+    <div class="suc-switch">
+      <button onclick="agSetPeriodo('hoy',this)">Hoy</button>
+      <button onclick="agSetPeriodo(7,this)">7 días</button>
+      <button class="on" onclick="agSetPeriodo(14,this)">14 días</button>
+      <button onclick="agSetPeriodo(30,this)">30 días</button>
+      <button onclick="agSetPeriodo('mes',this)">Mes</button>
+      <button onclick="agSetPeriodo('todo',this)">Todo</button>
+    </div>
+  </div>
+
+  <div class="ag-card">
+    <table class="ag-tbl">
+      <thead>
+        <tr>
+          <th style="width:74px">Fecha</th>
+          <th>Cumpleañero</th>
+          <th style="width:42px">Edad</th>
+          <th style="width:48px;text-align:center">Niños</th>
+          <th style="width:54px;text-align:center">Adultos</th>
+          <th style="width:46px">Mod</th>
+          <th style="width:78px">Estado</th>
+          <th style="width:22px"></th>
+        </tr>
+      </thead>
+      <tbody id="agBody"></tbody>
+    </table>
+  </div>
+
+  <p class="ag-leg"><b>Iconos de estado:</b>
+    <i class="ti ti-check ic-ok" style="vertical-align:-1px;margin-left:6px"></i> Seña ·
+    <i class="ti ti-check ic-ok" style="vertical-align:-1px;margin-left:6px"></i> Contrato ·
+    <i class="ti ti-bell ic-warn" style="vertical-align:-1px;margin-left:6px"></i> Pendiente confirmar (10–7 días) ·
+    <i class="ti ti-clock ic-warn" style="vertical-align:-1px;margin-left:6px"></i> Seña parcial o vencimiento
+  </p>
+
+  <!-- ====== MODAL DE CARGA ====== -->
+  <div class="ag-modal-bg" id="agModalBg" style="display:none" onclick="if(event.target===this)agCerrarModal()">
+    <div class="ag-modal" role="dialog" aria-modal="true">
+      <div class="ag-modal-top">
+        <div>
+          <div class="ag-modal-title" id="agModalTitle">Nueva reserva · Cumpleaños</div>
+          <div class="ag-modal-sub" id="agModalSub">Cargá los datos. La modalidad y el cálculo dependen del tipo.</div>
+        </div>
+        <button class="ag-modal-x" onclick="agCerrarModal()" aria-label="Cerrar">×</button>
+      </div>
+
+      <div style="padding:14px 22px 0">
+        <div class="suc-switch">
+          <button class="on" onclick="agModalTipo('cumple',this)">Cumpleaños</button>
+          <button onclick="agModalTipo('jjaa',this)">Juegos Abiertos</button>
+          <button onclick="agModalTipo('evento',this)">Evento</button>
+        </div>
+      </div>
+
+      <div class="ag-modal-body" id="agModalBody">
+        <!-- el contenido lo arma agRenderForm() según el tipo -->
+      </div>
+
+      <div class="ag-modal-footer">
+        <span class="req-note"><span>*</span> Campos obligatorios</span>
+        <button class="ag-btn-cancel" onclick="agCerrarModal()">Cancelar</button>
+        <button class="ag-btn-save" onclick="agGuardar()"><i class="ti ti-check" style="font-size:15px"></i>Guardar</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ===================================================================
+     BLOQUE 4 — AGREGAR ESTE SCRIPT antes del cierre </body>
+     (o dentro del script existente, antes de window.tab = ...)
+=================================================================== -->
+
+<script>
+// ====== DATOS MOCK (después conectamos Supabase) ======
+const agMockReservas = [
+  // tipo, fecha, hora, nombre, edad, ninos, adultos, mod, sena, contrato, confirmado, urgente, pagoCompleto
+  {id:1, tipo:'cumple', dia:'Jue 2/7', hora:'17:00', nombre:'Santino', edad:10, ninos:10, adultos:2, mod:'PRO', estado:[1,1,0], urgente:false, telefono:'11 6877-2929', responsable:'Yanina', colegio:'—', senaCobrada:180000, senaTotal:558000, vto:'30/6', adnp:'B-CA-2026 / 1696'},
+  {id:2, tipo:'cumple', dia:'Vie 3/7', hora:'17:00', nombre:'Martín', edad:10, ninos:10, adultos:2, mod:'PRO', estado:[1,1,2], urgente:true, telefono:'11 6300-1826', responsable:'Liz', colegio:'Escuela 11 DE 6 - San Cristóbal', senaCobrada:500000, senaTotal:500000, vto:null, adnp:'B-CA-2026 / 1690'},
+  {id:3, tipo:'cumple', dia:'Dom 5/7', hora:'14:00', nombre:'Benicio', edad:11, ninos:30, adultos:2, mod:'PRO', estado:[3,0,0], urgente:false, warn:true, telefono:'11 5938-7740', responsable:'Laura / Federico', colegio:'Instituto Santa Rita', senaCobrada:100000, senaTotal:560000, vto:'30/6', adnp:'—'},
+  {id:4, tipo:'cumple', dia:'Lun 6/7', hora:'17:00', nombre:'Julián', edad:10, ninos:25, adultos:2, mod:'PRO', estado:[1,1,2], urgente:true, telefono:'+54 9 11 3776-9476', responsable:'Cristina', colegio:'Cabrini - Villa General Mitre', senaCobrada:560000, senaTotal:560000, vto:null, adnp:'B-CA-2026 / 1686'},
+  {id:5, tipo:'cumple', dia:'Lun 6/7', hora:'17:30', nombre:'Joaquín', edad:11, ninos:20, adultos:2, mod:'PRO', estado:[3,0,0], urgente:false, telefono:'11 5753-5700', responsable:'Florencia / Juan', colegio:'Colegio Marianista', senaCobrada:100000, senaTotal:560000, vto:'30/6', adnp:'—'},
+];
+
+let agTipo='cumple', agSuc='caballito', agPeriodo=14, agFilterUrgente=false, agOpen=null;
+
+function agSetTipo(t,btn){ agTipo=t; agSwitchOn(btn); agRender(); }
+function agSetSuc(s,btn){ agSuc=s; agSwitchOn(btn); agRender(); }
+function agSetPeriodo(p,btn){ agPeriodo=p; agSwitchOn(btn); agRender(); }
+function agSwitchOn(btn){ btn.parentNode.querySelectorAll('button').forEach(b=>b.classList.remove('on')); btn.classList.add('on'); }
+function agFiltroUrgente(){ agFilterUrgente=!agFilterUrgente; agRender(); }
+
+function agIcEstado(e){
+  // e = [seña, contrato, confirmación]  0=vacio, 1=ok, 2=alerta, 3=parcial
+  const I={
+    0:'<i class="ti ti-circle-dot ic-dot"></i>',
+    1:'<i class="ti ti-check ic-ok"></i>',
+    2:'<i class="ti ti-bell ic-warn"></i>',
+    3:'<i class="ti ti-clock ic-warn"></i>',
+  };
+  return `<span style="display:inline-flex;gap:5px;align-items:center">${e.map(x=>I[x]||I[0]).join('')}</span>`;
+}
+
+function agRender(){
+  const body=document.getElementById('agBody'); if(!body) return;
+  let rows = agMockReservas.filter(r=>r.tipo===agTipo);
+  if(agFilterUrgente) rows=rows.filter(r=>r.urgente);
+  if(!rows.length){ body.innerHTML='<tr><td colspan="8" style="text-align:center;padding:24px;color:var(--gris)">Sin reservas para este filtro.</td></tr>'; return; }
+  let html='';
+  rows.forEach(r=>{
+    const cls = r.urgente?'urgent':(r.warn?'warn':'');
+    const open = (agOpen===r.id)?' open':'';
+    const modCls = 'm-'+r.mod.toLowerCase();
+    html+=`<tr class="row ${cls}${open}" onclick="agToggle(${r.id})">
+      <td><span class="day">${r.dia}</span><span class="hour">${r.hora}</span></td>
+      <td><span class="name">${r.nombre}</span></td>
+      <td class="num">${r.edad}</td>
+      <td class="num">${r.ninos}</td>
+      <td class="num">${r.adultos}</td>
+      <td><span class="mpill ${modCls}">${r.mod}</span></td>
+      <td>${agIcEstado(r.estado)}</td>
+      <td style="text-align:center"><i class="ti ti-chevron-down chev"></i></td>
+    </tr>`;
+    if(agOpen===r.id) html+=agExpand(r);
+  });
+  body.innerHTML=html;
+}
+
+function agExpand(r){
+  const saldo = r.senaTotal - r.senaCobrada;
+  const payBar = saldo>0 ? `<div class="ag-pay">
+    <div class="info"><div class="pl">Saldo pendiente${r.vto?' · vence '+r.vto:''}</div><div class="pv">$${saldo.toLocaleString('es-AR')}</div></div>
+    <button class="btn" onclick="agPagarCompleto(${r.id});event.stopPropagation()"><i class="ti ti-cash" style="font-size:15px"></i>Marcar como pagado completo</button>
+  </div>`:'';
+  return `<tr><td colspan="8" style="padding:0">
+    <div class="ag-exp" onclick="event.stopPropagation()">
+      ${payBar}
+      <div class="ag-exp-grid">
+        <div class="ag-exp-block"><span class="lbl">Contacto</span>
+          <div class="ag-exp-line"><span class="k">Resp.</span><span>${r.responsable}</span></div>
+          <div class="ag-exp-line"><span class="k">Tel</span><span>${r.telefono}</span></div>
+          <div class="ag-exp-line"><span class="k">Colegio</span><span>${r.colegio}</span></div>
+        </div>
+        <div class="ag-exp-block"><span class="lbl">Cobro</span>
+          <div class="ag-exp-line"><span class="k">Seña</span><span>$${r.senaCobrada.toLocaleString('es-AR')} / $${r.senaTotal.toLocaleString('es-AR')}</span></div>
+          <div class="ag-exp-line"><span class="k">ADNP</span><span>${r.adnp}</span></div>
+          <div class="ag-exp-line"><a href="#" class="lnk" style="color:var(--rojo);text-decoration:none;font-weight:700"><i class="ti ti-paperclip"></i> Adjuntar contrato</a></div>
+        </div>
+        <div class="ag-exp-block"><span class="lbl">Estado · editable</span>
+          <div class="ag-checks" style="grid-template-columns:1fr">
+            <label><input type="checkbox" ${r.estado[0]===1||r.estado[0]===3?'checked':''}> Seña abonada</label>
+            <label><input type="checkbox" ${r.estado[1]===1?'checked':''}> Contrato firmado</label>
+            <label><input type="checkbox" ${r.estado[2]===1?'checked':''}> Reconfirmado</label>
+            <label><input type="checkbox"> Pagado completo</label>
+          </div>
+        </div>
+      </div>
+      <div class="ag-exp-block" style="margin-top:14px"><span class="lbl">Alertas operativas · tocá para marcar</span>
+        <div class="ag-checks">
+          <label><input type="checkbox"> Niño/a celíaco/a</label>
+          <label><input type="checkbox"> Niño/a con TEA</label>
+          <label><input type="checkbox"> Movilidad reducida</label>
+          <label><input type="checkbox"> Acompañante terapéutico</label>
+          <label><input type="checkbox"> Pizza sin queso</label>
+          <label><input type="checkbox"> Trae piñata</label>
+        </div>
+      </div>
+    </div>
+    <div class="ag-exp-actions">
+      <span class="saved"><i class="ti ti-check" style="font-size:13px"></i>Cambios guardados automáticamente</span>
+      <button class="b" onclick="agEditar(${r.id});event.stopPropagation()"><i class="ti ti-edit" style="font-size:13px"></i>Editar datos</button>
+    </div>
+  </td></tr>`;
+}
+
+function agToggle(id){ agOpen = (agOpen===id)?null:id; agRender(); }
+function agPagarCompleto(id){ const r=agMockReservas.find(x=>x.id===id); if(r){ r.senaCobrada=r.senaTotal; r.warn=false; agRender(); } }
+function agEditar(id){ agAbrirModal(id); }
+
+// ====== MODAL ======
+let agModalTipoActivo='cumple', agModalEditandoId=null;
+function agAbrirModal(id){
+  agModalEditandoId = id||null;
+  agModalTipoActivo = id ? agMockReservas.find(r=>r.id===id)?.tipo || 'cumple' : agTipo;
+  document.getElementById('agModalBg').style.display='flex';
+  // marcar el botón correcto del modal-typeswitch
+  document.querySelectorAll('#agModalBg .suc-switch button').forEach((b,i)=>{
+    const tipos=['cumple','jjaa','evento'];
+    b.classList.toggle('on', tipos[i]===agModalTipoActivo);
+  });
+  agRenderForm();
+}
+function agCerrarModal(){ document.getElementById('agModalBg').style.display='none'; agModalEditandoId=null; }
+function agModalTipo(t,btn){ agModalTipoActivo=t; agSwitchOn(btn); agRenderForm(); }
+function agGuardar(){ alert('Guardar — acá conectamos Supabase'); agCerrarModal(); }
+
+function agRenderForm(){
+  const titles = {
+    cumple:{t:'Nueva reserva · Cumpleaños', s:'Cargá los datos. El cálculo de precio se hace al guardar.'},
+    jjaa:{t:'Nueva inscripción · Juegos Abiertos', s:'Solo se ven las fechas que el admin habilitó.'},
+    evento:{t:'Nueva reserva · Evento', s:'Empresas, grupos, despedidas, fiestas privadas.'}
+  };
+  document.getElementById('agModalTitle').textContent = titles[agModalTipoActivo].t;
+  document.getElementById('agModalSub').textContent = titles[agModalTipoActivo].s;
+
+  let h='';
+  if(agModalTipoActivo==='cumple') h = agFormCumple();
+  else if(agModalTipoActivo==='jjaa') h = agFormJJAA();
+  else h = agFormEvento();
+  document.getElementById('agModalBody').innerHTML = h;
+}
+
+function agFormCumple(){return `
+  <div class="ag-h3">Datos del evento</div>
+  <div class="ag-grid-3" style="margin-bottom:10px">
+    <div class="field"><label class="ag-req">Fecha</label><input type="date"></div>
+    <div class="field"><label class="ag-req">Horario</label><select><option>17:00 a 19:30</option><option>14:00 a 16:30</option><option>16:30 a 19:00</option><option>17:30 a 20:00</option></select></div>
+    <div class="field"><label class="ag-req">Sucursal</label><select><option>Caballito</option><option>Núñez</option></select></div>
+  </div>
+  <div class="ag-grid-3" style="margin-bottom:10px">
+    <div class="field"><label class="ag-req">Nombre del cumpleañero</label><input type="text" placeholder="ej: Mateo"></div>
+    <div class="field"><label class="ag-req">Edad</label><input type="number" min="1" max="17"></div>
+    <div class="field"><label class="ag-req">Modalidad</label><select><option>NEO</option><option selected>PRO</option><option>MAX</option></select></div>
+  </div>
+  <div class="ag-grid-3">
+    <div class="field"><label class="ag-req">Niños</label><input type="number" min="1"></div>
+    <div class="field"><label class="ag-req">Adultos</label><input type="number" min="0"></div>
+    <div class="field"><label>Colegio<span class="opt">· escribí o elegí</span></label>
+      <input type="text" list="ag-colegios" placeholder="Buscar o agregar">
+      <datalist id="ag-colegios">
+        <option value="Saint-Exupéry · Caballito"><option value="Marianista"><option value="Limerick · Flores">
+        <option value="Cardenal Copello · Villa Devoto"><option value="Damaso Centeno"><option value="Santo Tomás de Aquino">
+      </datalist>
+    </div>
+  </div>
+
+  <div class="ag-h3">Contacto del responsable</div>
+  <div class="ag-grid-3" style="margin-bottom:10px">
+    <div class="field"><label class="ag-req">Nombre</label><input type="text"></div>
+    <div class="field"><label class="ag-req">Celular</label><input type="tel"></div>
+    <div class="field"><label>Mail<span class="opt">opcional</span></label><input type="email"></div>
+  </div>
+  <div class="ag-grid-2">
+    <div class="field"><label>Contacto alternativo<span class="opt">opcional</span></label><input type="text" placeholder="Nombre"></div>
+    <div class="field"><label>&nbsp;</label><input type="tel" placeholder="Celular"></div>
+  </div>
+
+  <div class="ag-h3">Cobro inicial</div>
+  <div class="ag-grid-3" style="margin-bottom:12px">
+    <div class="field"><label class="ag-req">Monto de seña</label><input type="text" placeholder="$"></div>
+    <div class="field"><label class="ag-req">Forma de pago</label><select><option>Efectivo</option><option>Transferencia</option><option>Mercado Pago</option></select></div>
+    <div class="field"><label class="ag-req">Fecha de pago</label><input type="date"></div>
+  </div>
+
+  <div style="margin-bottom:12px">
+    <label style="display:block;font-size:11.5px;color:#374151;font-weight:600;margin-bottom:4px" class="ag-req">N° de ADNP</label>
+    <div class="ag-adnp">
+      <div class="field"><select><option>B</option><option>DIGITAL</option></select></div>
+      <div class="sep">–</div>
+      <div class="field"><select><option>CA</option><option>NU</option></select></div>
+      <div class="sep">–</div>
+      <div class="field"><input type="text" value="2026" maxlength="4"></div>
+      <div class="sep">/</div>
+      <div class="field"><input type="number" placeholder="N°"></div>
+    </div>
+  </div>
+
+  <div class="field" style="margin-bottom:12px">
+    <label>Adjuntar contrato firmado<span class="opt">PDF o foto · podés subirlo después</span></label>
+    <div class="ag-file"><i class="ti ti-cloud-upload" style="font-size:18px;display:block;margin-bottom:3px"></i>Arrastrá el archivo o tocá para elegir</div>
+  </div>
+
+  <div class="ag-h3">Estado al cargar</div>
+  <div class="ag-checks" style="margin-bottom:10px">
+    <label><input type="checkbox" checked>Invitación digital enviada</label>
+    <label><input type="checkbox" checked>Contrato (ADNP) firmado</label>
+    <label><input type="checkbox" checked>Seña abonada</label>
+    <label><input type="checkbox">Pagado completo</label>
+  </div>
+
+  <div class="ag-h3">Alertas operativas</div>
+  <div class="ag-checks" style="margin-bottom:12px">
+    <label><input type="checkbox">Niño/a celíaco/a</label>
+    <label><input type="checkbox">Niño/a con TEA</label>
+    <label><input type="checkbox">Movilidad reducida</label>
+    <label><input type="checkbox">Acompañante terapéutico</label>
+    <label><input type="checkbox">Pizza sin queso</label>
+    <label><input type="checkbox">Trae piñata</label>
+  </div>
+
+  <div class="field"><label>Observaciones extra<span class="opt">notas internas</span></label>
+    <textarea placeholder="Cualquier cosa que la asesora del día deba saber"></textarea></div>
+`;}
+
+function agFormJJAA(){return `
+  <div class="ag-h3">Turno</div>
+  <div class="ag-grid-3" style="margin-bottom:10px">
+    <div class="field"><label class="ag-req">Sucursal</label><select><option>Caballito</option><option>Núñez</option></select></div>
+    <div class="field"><label class="ag-req">Fecha habilitada</label><select><option>Dom 26/7</option><option>Lun 20/7</option><option>Sáb 25/7</option></select></div>
+    <div class="field"><label class="ag-req">Horario</label><select><option>13:30 · 29 libres</option><option>15:00 · 30 libres</option><option>16:30 · 30 libres</option></select></div>
+  </div>
+  <div class="ag-hint"><i class="ti ti-info-circle" style="font-size:14px;vertical-align:-2px;margin-right:4px"></i>Solo aparecen los turnos publicados con cupo disponible.</div>
+
+  <div class="ag-h3">Inscriptos</div>
+  <div class="ag-grid-3" style="margin-bottom:10px">
+    <div class="field"><label class="ag-req">Cantidad</label><input type="number" value="1" min="1"></div>
+    <div class="field"><label class="ag-req">Nombres</label><input type="text" placeholder="Juan, Tomás"></div>
+    <div class="field"><label class="ag-req">Edades</label><input type="text" placeholder="11, 9"></div>
+  </div>
+  <div class="ag-grid-2" style="margin-bottom:10px">
+    <div class="field"><label class="ag-req">Teléfono</label><input type="tel"></div>
+    <div class="field"><label>Responsable<span class="opt">opcional</span></label><input type="text" placeholder="mamá / papá"></div>
+  </div>
+
+  <div class="ag-h3">Cobro</div>
+  <div class="ag-grid-3" style="margin-bottom:10px">
+    <div class="field"><label class="ag-req">Monto</label><input type="text" placeholder="$"></div>
+    <div class="field"><label class="ag-req">Forma de pago</label><select><option>Efectivo</option><option>Transferencia</option><option>Mercado Pago</option></select></div>
+    <div class="field"><label class="ag-req">Fecha</label><input type="date"></div>
+  </div>
+
+  <div class="field" style="margin-top:6px"><label>Observaciones<span class="opt">notas internas</span></label>
+    <textarea placeholder="Alergias, hermanos en otros turnos, lo que sea relevante"></textarea></div>
+`;}
+
+function agFormEvento(){return `
+  <div class="ag-h3">Datos del evento</div>
+  <div class="ag-grid-2" style="margin-bottom:10px">
+    <div class="field"><label class="ag-req">Nombre del evento o empresa</label><input type="text" placeholder="ej: Evento PI · Empresa XYZ · Despedida de Camila"></div>
+    <div class="field"><label class="ag-req">Sucursal</label><select><option>Caballito</option><option>Núñez</option></select></div>
+  </div>
+  <div class="ag-grid-3" style="margin-bottom:10px">
+    <div class="field"><label class="ag-req">Fecha</label><input type="date"></div>
+    <div class="field"><label class="ag-req">Horario</label><select><option>22:00 a 23:30</option><option>19:00 a 21:30</option><option>20:00 a 22:30</option></select></div>
+    <div class="field"><label>Duración<span class="opt">opcional</span></label><select><option>1.5 hs</option><option>2.5 hs</option><option>3 hs</option></select></div>
+  </div>
+  <div class="ag-grid-3">
+    <div class="field"><label class="ag-req">Adultos</label><input type="number" min="0"></div>
+    <div class="field"><label>Niños<span class="opt">si los hay</span></label><input type="number" min="0"></div>
+    <div class="field"><label class="ag-req">Responsable</label><input type="text" placeholder="Nombre + teléfono"></div>
+  </div>
+
+  <div class="ag-h3">Cobro</div>
+  <div class="ag-grid-3" style="margin-bottom:10px">
+    <div class="field"><label>Monto cobrado<span class="opt">opcional</span></label><input type="text" placeholder="$"></div>
+    <div class="field"><label>Forma de pago<span class="opt">opcional</span></label><select><option>—</option><option>Efectivo</option><option>Transferencia</option><option>Mercado Pago</option><option>Factura</option></select></div>
+    <div class="field"><label>Fecha de pago<span class="opt">opcional</span></label><input type="date"></div>
+  </div>
+
+  <div class="field" style="margin-bottom:10px"><label>Adjuntar presupuesto<span class="opt">opcional</span></label>
+    <div class="ag-file"><i class="ti ti-cloud-upload" style="font-size:18px;display:block;margin-bottom:3px"></i>Arrastrá el archivo o tocá para elegir</div></div>
+
+  <div class="ag-h3">Detalles del evento</div>
+  <div class="field"><label class="ag-req">Observaciones</label>
+    <textarea style="min-height:90px" placeholder="Timing, requerimientos, equipos, comidas, lo que necesite saber operación."></textarea></div>
+`;}
+
+// Inicializar al cargar
+if(document.getElementById('agBody')) agRender();
+window.agSetTipo=agSetTipo; window.agSetSuc=agSetSuc; window.agSetPeriodo=agSetPeriodo;
+window.agFiltroUrgente=agFiltroUrgente; window.agToggle=agToggle; window.agPagarCompleto=agPagarCompleto;
+window.agAbrirModal=agAbrirModal; window.agCerrarModal=agCerrarModal;
+window.agModalTipo=agModalTipo; window.agGuardar=agGuardar; window.agEditar=agEditar;
+</script>
+
+
+<!-- ===================================================================
+     LIBRERÍA DE ÍCONOS — solo si NO la tenés ya cargada
+     Agregá esta línea en el <head> si los iconos <i class="ti ti-..."> 
+     no aparecen. Si ya la tenés, saltala.
+=================================================================== -->
+
+<!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css"> -->
