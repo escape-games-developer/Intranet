@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Crear contraseña · Intranet</title>
+<style>
+  :root{ --rojo:#C81E1E; --rojo-osc:#9E1414; --linea:#E7E3DF; --tinta:#1F1B18; --gris:#7A7672; }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;background:#F4F2F0;color:var(--tinta);
+    min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+  .box{background:#fff;border:1px solid var(--linea);border-radius:18px;padding:34px 30px;max-width:400px;width:100%;
+    box-shadow:0 8px 30px rgba(0,0,0,.08)}
+  .logo{width:54px;height:54px;border-radius:14px;background:var(--rojo);display:flex;align-items:center;justify-content:center;
+    font-size:28px;margin:0 auto 16px}
+  h1{font-size:21px;font-weight:800;text-align:center;margin:0 0 4px}
+  .sub{font-size:13.5px;color:var(--gris);text-align:center;margin-bottom:24px}
+  label{display:block;font-size:13px;font-weight:600;margin-bottom:6px}
+  input{width:100%;padding:11px 13px;border:1px solid var(--linea);border-radius:10px;font-size:15px;font-family:inherit;
+    margin-bottom:16px;outline:none}
+  input:focus{border-color:var(--rojo)}
+  button{width:100%;background:var(--rojo);color:#fff;border:none;padding:13px;border-radius:11px;font-size:15px;font-weight:700;
+    cursor:pointer;font-family:inherit}
+  button:hover{background:var(--rojo-osc)}
+  button:disabled{opacity:.6;cursor:default}
+  .msg{border-radius:10px;padding:11px 13px;font-size:13.5px;margin-bottom:16px;display:none}
+  .msg.err{background:#FDECEC;border:1px solid #F5C2C2;color:#9E1414;display:block}
+  .msg.ok{background:#E9F7EC;border:1px solid #BEE4C6;color:#1A7A33;display:block}
+  .hint{font-size:12px;color:var(--gris);margin-top:-8px;margin-bottom:16px}
+</style>
+</head>
+<body>
+  <div class="box">
+    <div class="logo">🎯</div>
+    <h1>Creá tu contraseña</h1>
+    <div class="sub">Definí la contraseña con la que vas a ingresar a la intranet.</div>
+
+    <div id="msg" class="msg"></div>
+
+    <div id="form">
+      <label for="pass1">Contraseña nueva</label>
+      <input type="password" id="pass1" placeholder="Mínimo 8 caracteres" autocomplete="new-password">
+      <div class="hint">Al menos 8 caracteres.</div>
+
+      <label for="pass2">Confirmá la contraseña</label>
+      <input type="password" id="pass2" placeholder="Repetí la contraseña" autocomplete="new-password">
+
+      <button id="btn" onclick="guardar()">Guardar contraseña</button>
+    </div>
+  </div>
+
+<script type="module">
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+const SUPABASE_URL = "https://biquzbofbmrkptxgewvh.supabase.co";
+const SUPABASE_KEY = "sb_publishable_6JK7V1gkSZnNoK-OYb14xQ_gSa3eQqF";
+const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const msg = document.getElementById('msg');
+const form = document.getElementById('form');
+const btn = document.getElementById('btn');
+
+function showMsg(text, tipo){ msg.textContent=text; msg.className='msg '+tipo; }
+
+// Al abrir el link del mail, Supabase deja la sesión de recuperación activa.
+// Verificamos que haya una sesión válida; si no, avisamos.
+let sesionLista = false;
+async function verificarSesion(){
+  // El SDK procesa el token de la URL automáticamente al iniciar.
+  const { data:{ session } } = await sb.auth.getSession();
+  if(session){ sesionLista = true; return; }
+  // Esperamos al evento por si tarda en procesar el hash de la URL
+  sb.auth.onAuthStateChange((event, session)=>{
+    if(session){ sesionLista = true; showMsg('',''); msg.className='msg'; }
+  });
+  // Si en 2 segundos no hay sesión, mostramos aviso
+  setTimeout(()=>{
+    if(!sesionLista){
+      showMsg('Este enlace no es válido o ya expiró. Pedile al administrador que te reenvíe la invitación.', 'err');
+    }
+  }, 2000);
+}
+verificarSesion();
+
+window.guardar = async function(){
+  const p1 = document.getElementById('pass1').value;
+  const p2 = document.getElementById('pass2').value;
+  if(p1.length < 8){ showMsg('La contraseña debe tener al menos 8 caracteres.', 'err'); return; }
+  if(p1 !== p2){ showMsg('Las dos contraseñas no coinciden.', 'err'); return; }
+  if(!sesionLista){ showMsg('El enlace no es válido o expiró. Pedí una nueva invitación.', 'err'); return; }
+
+  btn.disabled = true; showMsg('Guardando…', 'ok');
+  const { error } = await sb.auth.updateUser({ password: p1 });
+  if(error){ showMsg('No se pudo guardar: '+error.message, 'err'); btn.disabled=false; return; }
+
+  showMsg('¡Listo! Tu contraseña quedó configurada. Te llevamos al panel…', 'ok');
+  form.style.display = 'none';
+  setTimeout(()=>{ window.location.href = 'panel.html'; }, 1800);
+};
+</script>
+</body>
+</html>

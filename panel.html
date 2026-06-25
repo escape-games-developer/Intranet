@@ -671,7 +671,7 @@ window.asignarRol=async function(){
       method:'POST',
       headers:{ 'Content-Type':'application/json', 'Authorization':`Bearer ${session.access_token}`, 'apikey':SUPABASE_KEY },
       body: JSON.stringify({ email, rol, unidad_negocio:unidad, sucursal_id:suc,
-        redirectTo: window.location.origin + '/panel.html' })
+        redirectTo: 'https://intranet-murex.vercel.app/definir-clave.html' })
     });
     const out = await res.json();
     if(!res.ok || out.error){ msg.innerHTML=`<div class="err-box">${escHtml(out.error||'No se pudo procesar.')}</div>`; return; }
