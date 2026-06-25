@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Laser Games · Centro de Ventas Cumples</title>
+<title>Centro de Ventas</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -200,8 +200,8 @@
   <div class="top">
     <div class="logo">🎯</div>
     <div>
-      <h1>Laser Games · Centro de Ventas</h1>
-      <div class="sub">Todo para atender cumpleaños y Juegos Abiertos — cotizador, mensajes y seguimientos · <b>v20 · 18/06/2026</b></div>
+      <h1 id="tituloApp">Centro de Ventas</h1>
+      <div class="sub" id="subApp"></div>
     </div>
     <button class="btn-salir" onclick="doLogout()">Salir</button>
   </div>
@@ -614,7 +614,7 @@
     <div class="step"><div class="num">7</div><div class="tx">Tocá <b>"📋 Copiar"</b> en el mensaje que necesités y pegalo en WhatsApp. Sale con los números correctos.</div></div>
   </div>
 
-  <p class="footnote">Laser Games Evolution · Centro de Ventas · Uso interno</p>
+  <p class="footnote">Centro de Ventas · Uso interno</p>
 </section>
 
 <!-- ============ JUEGOS ABIERTOS · PREVENTA VACACIONES ============ -->
@@ -1340,15 +1340,17 @@ window.setCSuc=setCSuc; window.setCMod=setCMod; window.calcConfirma=calcConfirma
 
 async function cargarDatos(){
   try{
-    const [precios,sucursales,config,mensajes,recon,secciones]=await Promise.all([
+    const [precios,sucursales,config,mensajes,recon,secciones,uni]=await Promise.all([
       sb.from('precios').select('*').eq('unidad_negocio',UNIDAD).order('mes'),
       sb.from('sucursales').select('*').eq('unidad_negocio',UNIDAD),
       sb.from('config').select('*').eq('unidad_negocio',UNIDAD),
       sb.from('mensajes').select('*').eq('unidad_negocio',UNIDAD).order('orden'),
       sb.from('recontactos').select('*').eq('unidad_negocio',UNIDAD).order('mes'),
-      sb.from('unidad_secciones').select('seccion_id,activa').eq('unidad_negocio',UNIDAD).eq('activa',true)
+      sb.from('unidad_secciones').select('seccion_id,activa').eq('unidad_negocio',UNIDAD).eq('activa',true),
+      sb.from('unidades').select('nombre').eq('id',UNIDAD).maybeSingle()
     ]);
     if(precios.error||sucursales.error||config.error||mensajes.error||recon.error) throw (precios.error||sucursales.error||config.error||mensajes.error||recon.error);
+    window.UNIDAD_NOMBRE = (uni && uni.data && uni.data.nombre) ? uni.data.nombre : UNIDAD;
     PRECIOS={}; precios.data.forEach(p=>{ PRECIOS[p.mes]=[p.base,p.invitado,p.adulto_adic,p.cumple_adic]; });
     SUC={}; sucursales.data.forEach(s=>{ SUC[s.id]={nombre:s.nombre,alias:s.alias,grupo:s.grupo_electrogeno===true,dir:s.direccion||s.nombre}; });
     const cfg={}; config.data.forEach(c=>cfg[c.clave]=c.valor);
@@ -1358,6 +1360,7 @@ async function cargarDatos(){
     CFG.plazoOtros=cfg.plazo_otros_meses??"";
     CFG.reconModo=cfg.recon_modo??"despues_presupuesto";
     CFG.reconT1=cfg.recon_t1??"1"; CFG.reconT2=cfg.recon_t2??"3"; CFG.reconT3=cfg.recon_t3??"6";
+    CFG.subtitulo=cfg.subtitulo??""; CFG.nombreJjaa=cfg.nombre_jjaa??"Juegos Abiertos";
     FIJOS=[]; DIFUSION=[]; FAQ=[]; CIERRE=[]; OFERTA=[]; AYUDA=[]; COTIZADOR=[]; JJAA=[]; CONFIRMA={};
     mensajes.data.forEach(m=>{
       const item={t:m.titulo,cuando:m.cuando||"",txt:m.texto};
@@ -1413,6 +1416,16 @@ async function arrancarSesion(session){
   const sucObj = SUC[sucActual]||{};
   const sucNombre = sucObj.nombre || sucActual;
   const sf=document.getElementById('sucFija'); if(sf) sf.textContent="\ud83d\udccd Sucursal: "+sucNombre;
+  // Título dinámico = nombre de la unidad + "· Centro de Ventas"
+  const nombreUnidad = (perfil && perfil.unidad_nombre) ? perfil.unidad_nombre : UNIDAD;
+  const tEl=document.getElementById('tituloApp');
+  if(tEl) tEl.textContent = (window.UNIDAD_NOMBRE||nombreUnidad)+" · Centro de Ventas";
+  const sEl=document.getElementById('subApp'); if(sEl) sEl.textContent = CFG.subtitulo||"";
+  // Nombre de la sección JJAA según la unidad
+  const btnJjaa=document.querySelector('#navAsesor button[data-sec="jjaa"]');
+  if(btnJjaa) btnJjaa.textContent = "🎮 "+(CFG.nombreJjaa||"Juegos Abiertos");
+  const h2Jjaa=document.querySelector('#jjaa h2.sec');
+  if(h2Jjaa) h2Jjaa.textContent = "🎮 "+(CFG.nombreJjaa||"Juegos Abiertos");
   // Confirma: fijar sucursal del perfil para el armado del mensaje
   cSuc = sucActual;
   window.cSucDir = sucObj.dir || sucNombre;
