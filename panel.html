@@ -324,17 +324,55 @@ function htmlCotizador(){
 }
 function htmlMensajes(cat){
   const lista=state.mensajes.filter(m=>m.categoria===cat);
-  const nombres={fijo:'mensajes',difusion:'mensajes de difusión',cierre:'mensajes de cierre',faq:'respuestas rápidas',oferta:'bloques de la oferta',ayuda:'bloques del procedimiento'};
-  if(!lista.length) return `<div class="aviso">Sin ${nombres[cat]||'mensajes'} para esta unidad.</div>`;
+  const nombres={fijo:'mensajes',difusion:'mensajes de difusión',cierre:'mensajes de cierre',faq:'respuestas rápidas',oferta:'bloques de la oferta',ayuda:'bloques del procedimiento',confirma:'mensaje de confirmación',jjaa:'mensajes de Juegos Abiertos'};
   let h='';
   lista.forEach((m)=>{
     const i=state.mensajes.indexOf(m);
-    h+=`<div class="card"><div class="field" style="margin-bottom:8px"><label>${escHtml(m.titulo)} <span class="pill">${escHtml(m.id)}</span></label>
-      <div class="meta">${escHtml(m.cuando||'')}</div></div>
-      <textarea data-i="${i}" rows="6">${escHtml(m.texto)}</textarea></div>`;
+    h+=`<div class="card">
+      <div class="field" style="margin-bottom:8px">
+        <label>Título del bloque</label>
+        <input class="txt" type="text" data-titulo="${i}" value="${escAttr(m.titulo||'')}" placeholder="ej: 🎯 Empuje 1">
+      </div>
+      <div class="field" style="margin-bottom:8px">
+        <label>Cuándo / nota <span class="meta">(opcional)</span></label>
+        <input class="txt" type="text" data-cuando="${i}" value="${escAttr(m.cuando||'')}" placeholder="ej: Después del presupuesto">
+      </div>
+      <label>Mensaje</label>
+      <textarea data-i="${i}" rows="6">${escHtml(m.texto)}</textarea>
+      <div style="text-align:right;margin-top:8px">
+        <button class="btn-mini" style="border-color:#E5A0A0;color:#C81E1E" onclick="borrarBloque('${escAttr(m.id)}')">🗑 Borrar bloque</button>
+      </div>
+    </div>`;
   });
+  if(!lista.length) h=`<div class="aviso">Sin ${nombres[cat]||'mensajes'} todavía. Agregá el primero con el botón de abajo.</div>`;
+  h+=`<button class="btn-add" onclick="agregarBloque('${cat}')">+ Agregar bloque</button>`;
   return h;
 }
+// IDs de las categorías que permiten agregar/quitar bloques libremente
+const CATS_BLOQUES={fijo:'msg',difusion:'dif',cierre:'cierre',faq:'faq',oferta:'oferta',ayuda:'ayuda',jjaa:'jjaa'};
+window.agregarBloque=function(cat){
+  const u=unidadActiva;
+  const prefijo=CATS_BLOQUES[cat]||cat;
+  const nuevoId=prefijo+'_'+Date.now().toString(36)+Math.random().toString(36).slice(2,5);
+  const ordenes=state.mensajes.filter(m=>m.categoria===cat).map(m=>m.orden||0);
+  const nuevoOrden=(ordenes.length?Math.max(...ordenes):0)+1;
+  state.mensajes.push({unidad_negocio:u,id:nuevoId,categoria:cat,titulo:'Nuevo bloque',cuando:'',texto:'',orden:nuevoOrden, _nuevo:true});
+  // Re-pintar la sub-pestaña actual
+  const sub=document.querySelector('#subNav button.active'); if(sub) sub.click();
+};
+window.borrarBloque=async function(id){
+  if(!confirm('¿Borrar este bloque? No se puede deshacer.')) return;
+  const idx=state.mensajes.findIndex(m=>m.id===id);
+  if(idx<0) return;
+  const m=state.mensajes[idx];
+  // Si nunca se guardó (es nuevo), solo lo sacamos del estado
+  if(m._nuevo){ state.mensajes.splice(idx,1); const sub=document.querySelector('#subNav button.active'); if(sub) sub.click(); return; }
+  // Si ya existe en la base, lo borramos de la base
+  const { error }=await sb.from('mensajes').delete().eq('unidad_negocio',unidadActiva).eq('id',id);
+  if(error){ alert('No se pudo borrar: '+error.message); return; }
+  state.mensajes.splice(idx,1);
+  const sub=document.querySelector('#subNav button.active'); if(sub) sub.click();
+};
 function cfgVal(clave, def){ const c=state.config.find(x=>x.clave===clave); return c? c.valor : def; }
 function setCfg(clave, valor){
   let c=state.config.find(x=>x.clave===clave);
@@ -401,7 +439,11 @@ function enlazarInputs(id){
   const box=document.getElementById('subBox');
   if(id==='precios') box.querySelectorAll('input').forEach(inp=>inp.addEventListener('input',e=>{ state.precios[+e.target.dataset.i][e.target.dataset.f]=+e.target.value||0; }));
   else if(id==='config') box.querySelectorAll('input').forEach(inp=>inp.addEventListener('input',e=>{ state.config[+e.target.dataset.i].valor=e.target.value; }));
-  else if(id==='mensajes'||id==='mensajes_dif'||id==='mensajes_cierre'||id==='mensajes_faq'||id==='mensajes_oferta'||id==='mensajes_ayuda'||id==='mensajes_cotizador') box.querySelectorAll('textarea').forEach(t=>t.addEventListener('input',e=>{ state.mensajes[+e.target.dataset.i].texto=e.target.value; }));
+  else if(id==='mensajes'||id==='mensajes_dif'||id==='mensajes_cierre'||id==='mensajes_faq'||id==='mensajes_oferta'||id==='mensajes_ayuda'||id==='mensajes_cotizador'||id==='mensajes_confirma'||id==='mensajes_jjaa'){
+    box.querySelectorAll('textarea[data-i]').forEach(t=>t.addEventListener('input',e=>{ state.mensajes[+e.target.dataset.i].texto=e.target.value; }));
+    box.querySelectorAll('input[data-titulo]').forEach(t=>t.addEventListener('input',e=>{ state.mensajes[+e.target.dataset.titulo].titulo=e.target.value; }));
+    box.querySelectorAll('input[data-cuando]').forEach(t=>t.addEventListener('input',e=>{ state.mensajes[+e.target.dataset.cuando].cuando=e.target.value; }));
+  }
   else if(id==='recon'){ pintarHintTiming(); const sel=document.getElementById('reconMesSel'); if(sel) pintarRecon(); }
 }
 window.saveContenido=async function(){
@@ -414,6 +456,7 @@ window.saveContenido=async function(){
     if(state.recontactos.length) tareas.push(sb.from('recontactos').upsert(state.recontactos.map(r=>({unidad_negocio:u,mes:r.mes,recordatorio:r.recordatorio,escasez:r.escasez,ultimo:r.ultimo})),{onConflict:'unidad_negocio,mes'}));
     const res=await Promise.all(tareas);
     const fail=res.find(x=>x.error); if(fail) throw fail.error;
+    state.mensajes.forEach(m=>{ if(m._nuevo) delete m._nuevo; });
     setStatus('Cambios guardados ✓','ok');
   }catch(e){ setStatus('No se pudo guardar. ¿Tenés permisos sobre esta unidad?','err'); console.error(e); }
   finally{ btn.disabled=false; }
