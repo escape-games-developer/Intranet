@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Laser Games · Centro de Ventas Cumples</title>
+<style>
+  :root{
+    --rojo:#C81E1E; --rojo-osc:#9E1414; --tinta:#1A1A22; --gris:#6B7280;
+    --bg:#F4F5F7; --card:#FFFFFF; --verde:#15803D; --verde-bg:#E7F6EC;
+    --amar:#FEF3C7; --amar-bd:#F0CB55; --linea:#E5E7EB;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+    background:var(--bg);color:var(--tinta);line-height:1.5}
+  /* HEADER */
+  header{background:linear-gradient(135deg,#1A1A22 0%,#2D1417 60%,#C81E1E 140%);
+    color:#fff;padding:26px 32px 22px}
+  header .top{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+  .logo{width:46px;height:46px;border-radius:12px;background:var(--rojo);
+    display:flex;align-items:center;justify-content:center;font-size:24px;
+    box-shadow:0 4px 14px rgba(200,30,30,.4)}
+  header h1{font-size:22px;font-weight:800;letter-spacing:-.3px}
+  header .sub{color:#E9B8B8;font-size:13.5px;margin-top:2px}
+  /* NAV */
+  nav{position:sticky;top:0;z-index:50;background:#fff;border-bottom:1px solid var(--linea);
+    display:flex;gap:4px;padding:0 16px;overflow-x:auto;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+  nav button{background:none;border:none;padding:15px 16px;font-size:14px;font-weight:600;
+    color:var(--gris);cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap;
+    transition:.15s}
+  nav button:hover{color:var(--tinta)}
+  nav button.active{color:var(--rojo);border-bottom-color:var(--rojo)}
+  /* LAYOUT */
+  main{max-width:920px;margin:0 auto;padding:26px 20px 80px}
+  section{display:none;animation:fade .25s ease}
+  section.active{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  h2.sec{font-size:20px;font-weight:800;margin-bottom:4px;display:flex;align-items:center;gap:9px}
+  .sec-desc{color:var(--gris);font-size:14px;margin-bottom:20px}
+  /* CARDS */
+  .card{background:var(--card);border:1px solid var(--linea);border-radius:16px;
+    padding:22px;margin-bottom:16px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+  .card h3{font-size:16px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+  .pill{display:inline-block;background:var(--rojo);color:#fff;font-size:11px;font-weight:700;
+    padding:3px 10px;border-radius:20px;letter-spacing:.3px}
+  /* OFERTA grid */
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px}
+  .ofcard{background:var(--card);border:1px solid var(--linea);border-radius:14px;padding:18px}
+  .ofcard .ic{width:38px;height:38px;border-radius:10px;background:#FCE8E8;color:var(--rojo);
+    display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:10px}
+  .ofcard h4{font-size:14.5px;font-weight:700;margin-bottom:5px}
+  .ofcard p{font-size:13.5px;color:var(--gris)}
+  .ofcard b{color:var(--tinta)}
+  /* COTIZADOR */
+  .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:560px){.form-grid{grid-template-columns:1fr}.form-grid .full{grid-column:1}}
+  .full{grid-column:1/-1}
+  label{display:block;font-size:13px;font-weight:600;margin-bottom:5px;color:#374151}
+  input,select{width:100%;padding:11px 13px;border:1.5px solid var(--linea);border-radius:10px;
+    font-size:15px;background:#fff;transition:.15s;font-family:inherit}
+  input:focus,select:focus{outline:none;border-color:var(--rojo);box-shadow:0 0 0 3px rgba(200,30,30,.1)}
+  .hint{font-size:11.5px;color:var(--gris);margin-top:3px}
+  /* RESUMEN */
+  .resumen{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:6px}
+  .stat{background:#FAFAFB;border:1px solid var(--linea);border-radius:12px;padding:13px 15px}
+  .stat .lbl{font-size:11.5px;color:var(--gris);font-weight:600;text-transform:uppercase;letter-spacing:.3px}
+  .stat .val{font-size:20px;font-weight:800;margin-top:2px}
+  .stat.big{background:var(--verde-bg);border-color:#BBE5C7}
+  .stat.big .val{color:var(--verde)}
+  .stat.lista .val{color:var(--gris);font-size:17px;text-decoration:line-through;font-weight:600}
+  /* MENSAJE */
+  .msg{background:var(--verde-bg);border:1px solid #BBE5C7;border-radius:14px;padding:16px 18px;
+    white-space:pre-wrap;font-size:14px;line-height:1.6;color:#14321F;position:relative;margin-top:8px}
+  .msg-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:4px}
+  .msg-head .nm{font-size:13px;font-weight:700;color:var(--tinta);display:flex;align-items:center;gap:7px}
+  .cuando{font-size:12px;color:var(--gris);font-style:italic}
+  .btn-copy{background:var(--rojo);color:#fff;border:none;padding:8px 16px;border-radius:9px;
+    font-size:13px;font-weight:700;cursor:pointer;transition:.15s;white-space:nowrap;display:flex;
+    align-items:center;gap:6px;font-family:inherit}
+  .btn-copy:hover{background:var(--rojo-osc)}
+  .btn-copy.ok{background:var(--verde)}
+  /* SWITCH sucursal */
+  .suc-switch{display:inline-flex;background:#F0F0F3;border-radius:11px;padding:4px;gap:3px;margin-bottom:18px}
+  .suc-switch button{border:none;background:none;padding:9px 22px;border-radius:8px;font-size:14px;
+    font-weight:700;cursor:pointer;color:var(--gris);transition:.15s;font-family:inherit}
+  .suc-switch button.on{background:#fff;color:var(--rojo);box-shadow:0 1px 4px rgba(0,0,0,.12)}
+  /* PASOS */
+  .step{display:flex;gap:14px;margin-bottom:16px;align-items:flex-start}
+  .step .num{flex-shrink:0;width:32px;height:32px;border-radius:50%;background:var(--rojo);color:#fff;
+    display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px}
+  .step .tx{font-size:14.5px;padding-top:4px}
+  .step .tx b{color:var(--tinta)}
+  /* BLOQUE mensajes recepción */
+  .blkmsg{border:1px solid var(--linea);border-radius:14px;margin-bottom:14px;overflow:hidden}
+  .blkmsg .bh{background:#FAFAFB;padding:13px 16px;display:flex;align-items:center;justify-content:space-between;
+    gap:10px;border-bottom:1px solid var(--linea)}
+  .blkmsg .bh .t{font-size:14.5px;font-weight:700;display:flex;align-items:center;gap:8px}
+  .blkmsg .bd{padding:16px;white-space:pre-wrap;font-size:13.5px;line-height:1.55;color:#374151}
+  .tag{font-size:11px;color:var(--gris);font-style:italic;font-weight:500}
+  /* tabla referencia */
+  table{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:6px}
+  th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--linea)}
+  th{background:#FAFAFB;font-weight:700;font-size:12.5px;text-transform:uppercase;letter-spacing:.3px;color:#4B5563}
+  td b{color:var(--tinta)}
+  .footnote{font-size:12px;color:var(--gris);margin-top:18px;text-align:center}
+  .aviso{background:var(--amar);border:1px solid var(--amar-bd);border-radius:10px;padding:11px 14px;
+    font-size:13px;margin-top:12px;color:#7C5E10}
+  #bootView{min-height:100vh;display:flex;align-items:center;justify-content:center;color:var(--gris);font-size:14px}
+  #loginView{min-height:100vh;display:none;align-items:center;justify-content:center;padding:24px}
+  .login-box{background:var(--card);border:1px solid var(--linea);border-radius:18px;padding:34px 30px;max-width:380px;width:100%;box-shadow:0 8px 30px rgba(0,0,0,.08)}
+  .login-box .logo{width:54px;height:54px;border-radius:14px;background:var(--rojo);display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 16px}
+  .login-box h1{font-size:20px;font-weight:800;text-align:center;margin-bottom:4px}
+  .login-box .sub{font-size:13.5px;color:var(--gris);text-align:center;margin-bottom:22px}
+  .login-err{background:#FDECEC;border:1px solid #F5C2C2;color:#9E1414;border-radius:10px;padding:10px 13px;font-size:13px;margin-top:16px}
+  #appView{display:none}
+  .btn-salir{background:rgba(255,255,255,.16);color:#fff;border:1px solid rgba(255,255,255,.3);padding:8px 14px;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;margin-left:auto}
+  .btn-salir:hover{background:rgba(255,255,255,.26)}
+  header .top{justify-content:space-between}
+  .suc-fija{display:inline-flex;align-items:center;gap:8px;background:#fff;border:1.5px solid var(--rojo);color:var(--rojo);font-size:14px;font-weight:700;padding:9px 16px;border-radius:11px;margin-bottom:18px;margin-right:10px}
+</style>
+</head>
+<body>
+
+<div id="bootView">Cargando…</div>
+
+<div id="loginView">
+  <div class="login-box">
+    <div class="logo">🎯</div>
+    <h1>Intranet</h1>
+    <div class="sub">Ingresá desde el panel</div>
+    <div class="login-err">Para entrar, ingresá por el panel principal.
+      <a href="panel.html" style="color:#9E1414;font-weight:700">Ir al panel</a></div>
+  </div>
+</div>
+
+<div id="appView">
+
+<header>
+  <div class="top">
+    <div class="logo">🎯</div>
+    <div>
+      <h1>Laser Games · Centro de Ventas</h1>
+      <div class="sub">Todo para atender cumpleaños — cotizador, mensajes y seguimientos · <b>v3 · 11/06/2026</b></div>
+    </div>
+    <button class="btn-salir" onclick="doLogout()">Salir</button>
+  </div>
+</header>
+
+<nav id="navAsesor">
+  <button data-sec="presupuestador" class="active" onclick="tab('cotizador',this)">🧮 Cotizador</button>
+  <button data-sec="mensajes" onclick="tab('mensajes',this)">💬 Mensajes</button>
+  <button data-sec="cierre" onclick="tab('cierre',this)">🎯 Cerrar venta</button>
+  <button data-sec="oferta" onclick="tab('oferta',this)">🎁 La oferta</button>
+  <button data-sec="recontactos" onclick="tab('recontactos',this)">🔄 Recontactos</button>
+  <button data-sec="difusion" onclick="tab('difusion',this)">📣 Difusión</button>
+  <button data-sec="faq" onclick="tab('faq',this)">❓ Respuestas rápidas</button>
+  <button data-sec="ayuda" onclick="tab('ayuda',this)">📖 Procedimiento</button>
+</nav>
+
+<main>
+
+<!-- ============ COTIZADOR ============ -->
+<section id="cotizador" class="active">
+  <h2 class="sec">🧮 Cotizador de cumpleaños</h2>
+  <p class="sec-desc">Cargá los datos y abajo se arman solos los 4 mensajes, listos para copiar y pegar en WhatsApp.</p>
+
+  <div class="suc-fija" id="sucFija">📍 Sucursal: …</div>
+
+  <div class="suc-switch" style="margin-left:10px">
+    <button id="tipoChicos" class="on" onclick="setTipo('chicos',this)">🧒 Cumple de chicos</button>
+    <button id="tipoAdultos" onclick="setTipo('adultos',this)">🧑 Cumple de adultos</button>
+  </div>
+
+  <div class="card">
+    <h3>📝 Datos del cumple</h3>
+    <div class="form-grid">
+      <div>
+        <label>Mes del cumple</label>
+        <select id="mes" onchange="calc()">
+          <option value="1">Enero</option><option value="2">Febrero</option>
+          <option value="3">Marzo</option><option value="4">Abril</option>
+          <option value="5">Mayo</option><option value="6" selected>Junio</option>
+          <option value="7">Julio</option><option value="8">Agosto</option>
+          <option value="9">Septiembre</option><option value="10">Octubre</option>
+          <option value="11">Noviembre</option><option value="12">Diciembre</option>
+        </select>
+      </div>
+      <div id="campoEdad">
+        <label>Edad del cumpleañero/a</label>
+        <input type="number" id="edad" value="11" min="1" max="99" oninput="calc()">
+        <div class="hint">Define la modalidad: NEO 6-8 · PRO 9-17 · MAX 18+</div>
+      </div>
+      <div>
+        <label id="labelChicos">Chicos que juegan</label>
+        <input type="number" id="chicos" value="18" min="10" max="50" oninput="calc()">
+        <div class="hint" id="hintChicos">Incluí al cumpleañero. Mínimo 10.</div>
+      </div>
+      <div id="campoAdultos">
+        <label>Adultos adicionales</label>
+        <input type="number" id="adultos" value="0" min="0" oninput="calc()">
+        <div class="hint">Sin contar los 2 que ya van incluidos.</div>
+      </div>
+      <div id="campoCumple">
+        <label>Cumpleañeros adicionales</label>
+        <input type="number" id="cumple" value="0" min="0" oninput="calc()">
+        <div class="hint">0 si es uno solo. Hasta 4 compartido.</div>
+      </div>
+      <div>
+        <label>Modalidad (automática)</label>
+        <input type="text" id="modalidad" value="PRO" readonly style="background:#FAFAFB;font-weight:700">
+      </div>
+      <div>
+        <label>Día del cumple <span style="color:var(--gris);font-weight:400">(para reservar)</span></label>
+        <input type="text" id="dia" placeholder="ej: 15" oninput="calc()">
+      </div>
+      <div>
+        <label>Hora <span style="color:var(--gris);font-weight:400">(para reservar)</span></label>
+        <input type="text" id="hora" placeholder="ej: 16:30" oninput="calc()">
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>💰 Resumen del presupuesto</h3>
+    <div class="resumen">
+      <div class="stat lista"><div class="lbl">Precio de lista</div><div class="val" id="rLista">$0</div></div>
+      <div class="stat big"><div class="lbl">En efectivo (30% OFF)</div><div class="val" id="rEfe">$0</div></div>
+      <div class="stat"><div class="lbl">Ahorro</div><div class="val" id="rAho" style="color:var(--rojo)">$0</div></div>
+    </div>
+    <div class="resumen" style="margin-top:10px">
+      <div class="stat"><div class="lbl">Reserva (transfer.)</div><div class="val">$100.000</div></div>
+      <div class="stat"><div class="lbl">Resto de seña</div><div class="val" id="rResto">$0</div></div>
+      <div class="stat"><div class="lbl">Saldo el día</div><div class="val" id="rSaldo">$0</div></div>
+    </div>
+    <div class="aviso" id="plazoAviso">📅 Plazo para completar la seña: <b id="plazoTxt">dentro de los 5 días</b></div>
+  </div>
+
+  <!-- MENSAJES -->
+  <div class="card">
+    <div class="msg-head">
+      <div class="nm">1️⃣ Presupuesto <span class="cuando">— cuando pide precio</span></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn-copy" onclick="copyMsg('m1',this)">📋 Copiar</button>
+        <button class="btn-copy" style="background:#374151" onclick="copyMsg('m1b',this)">📋 Sin "Hola"</button>
+        <button class="btn-copy" style="background:#374151" onclick="copyMsg('m1c',this)">📋 Versión corta</button>
+      </div>
+    </div>
+    <div class="msg" id="m1"></div>
+    <div style="font-size:12px;color:var(--gris);margin-top:10px;margin-bottom:4px;font-style:italic">↓ Versión sin saludo (si ya venís en conversación):</div>
+    <div class="msg" id="m1b" style="background:#F4F5F7;border-color:var(--linea)"></div>
+    <div style="font-size:12px;color:var(--gris);margin-top:10px;margin-bottom:4px;font-style:italic">↓ Versión corta (si ya le mandaste la promo y solo pide otra cantidad):</div>
+    <div class="msg" id="m1c" style="background:#F4F5F7;border-color:var(--linea)"></div>
+  </div>
+
+  <div class="card">
+    <div class="msg-head">
+      <div class="nm">🎯 Empujar la reserva <span class="cuando">— mandá esto PEGADO ABAJO del presupuesto. Es el que invita a reservar (usa el día/hora si lo cargaste)</span></div>
+      <button class="btn-copy" onclick="copyMsg('mEmpuje',this)">📋 Copiar</button>
+    </div>
+    <div class="msg" id="mEmpuje"></div>
+  </div>
+
+  <div class="card">
+    <div class="msg-head">
+      <div class="nm">🎂 Precio cumpleañero adicional <span class="cuando">— cuando preguntan cuánto sale sumar otro cumpleañero</span></div>
+      <button class="btn-copy" onclick="copyMsg('mCumpleAd',this)">📋 Copiar</button>
+    </div>
+    <div class="msg" id="mCumpleAd"></div>
+  </div>
+
+  <div class="card">
+    <div class="msg-head">
+      <div class="nm">2️⃣ Pre-reserva <span class="cuando">— cuando quiere reservar (cargá día y hora)</span></div>
+      <button class="btn-copy" onclick="copyMsg('m2',this)">📋 Copiar</button>
+    </div>
+    <div class="msg" id="m2"></div>
+  </div>
+
+  <div class="card">
+    <div class="msg-head">
+      <div class="nm">3️⃣ Reserva confirmada <span class="cuando">— cuando ya transfirió / mandó comprobante</span></div>
+      <button class="btn-copy" onclick="copyMsg('m3',this)">📋 Copiar</button>
+    </div>
+    <div class="msg" id="m3"></div>
+  </div>
+
+  <div class="card">
+    <div class="msg-head">
+      <div class="nm">4️⃣ Cuánto falta <span class="cuando">— cuando ya transfirió y pregunta cuánto le queda</span></div>
+      <button class="btn-copy" onclick="copyMsg('m4',this)">📋 Copiar</button>
+    </div>
+    <div class="msg" id="m4"></div>
+  </div>
+
+  <div class="card">
+    <div class="msg-head">
+      <div class="nm">💡 Cómo son los pagos <span class="cuando">— cuando dice "no entiendo cómo se paga"</span></div>
+      <button class="btn-copy" onclick="copyMsg('m5',this)">📋 Copiar</button>
+    </div>
+    <div class="msg" id="m5"></div>
+  </div>
+</section>
+
+<!-- ============ MENSAJES FIJOS ============ -->
+<section id="mensajes">
+  <h2 class="sec">💬 Mensajes de atención</h2>
+  <p class="sec-desc">Estos los manda normalmente la IA (saludo, modalidades, etc.). Los tenés acá <b>por si tenés que intervenir a mano</b> — si la IA no respondió o te metés en la conversación. Tocá "Copiar" y pegá en WhatsApp.</p>
+  <div id="bloquesFijos"></div>
+</section>
+
+<!-- ============ CERRAR VENTA ============ -->
+<section id="cierre">
+  <h2 class="sec">🎯 Cerrar venta</h2>
+  <p class="sec-desc">Mandá esto DESPUÉS del presupuesto, cuando el cliente ya vio el precio. El presupuesto no cierra la venta: estos mensajes la empujan. Elegí según cómo venga el cliente.</p>
+  <div id="bloquesCierre"></div>
+</section>
+
+<!-- ============ OFERTA ============ -->
+<section id="oferta">
+  <h2 class="sec">🎁 Cómo funciona la oferta</h2>
+  <p class="sec-desc">La regla es una sola para todo el año. Lo único que cambia mes a mes es el precio.</p>
+  <div class="grid">
+    <div class="ofcard"><div class="ic">💵</div><h4>30% OFF en efectivo</h4><p>Pagando en <b>efectivo</b> tenés 30% de descuento. Otras formas de pago (transferencia, tarjeta) van a <b>precio de lista</b>.</p></div>
+    <div class="ofcard"><div class="ic">🔒</div><h4>Reserva con $100.000</h4><p>El cliente transfiere <b>$100.000</b> al alias de la sucursal → le guardamos día y horario (pre-reserva). Tiene <b>48 hs</b> para transferir; si no, se libera la fecha.</p></div>
+    <div class="ofcard"><div class="ic">📩</div><h4>Comprobante</h4><p>Cuando transfiere, pide el <b>comprobante</b>. Recién ahí la reserva queda confirmada.</p></div>
+    <div class="ofcard"><div class="ic">💰</div><h4>Resto de la seña</h4><p>En efectivo en el local: cumple de <b>junio</b> → 5 días · <b>julio en adelante</b> → hasta el 30/6.</p></div>
+    <div class="ofcard"><div class="ic">❄️</div><h4>Combo de invierno</h4><p>Reservando <b>en junio</b>, el cumpleañero entra gratis + 2x1 para invitados en juegos abiertos del receso. Sea para el mes que sea el cumple.</p></div>
+    <div class="ofcard"><div class="ic">👥</div><h4>Mínimo y máximo</h4><p><b>Mínimo 10 chicos</b> (si vienen menos se cobra la base de 10). Máximo 50. Los homenajeados cuentan como invitados.</p></div>
+  </div>
+  <div class="card" style="margin-top:16px">
+    <h3>🎈 Modalidades por edad</h3>
+    <table>
+      <tr><th>Modalidad</th><th>Edad</th><th>Para quién</th></tr>
+      <tr><td><b>NEO</b> 🟢</td><td>6 a 8 años</td><td>Primera experiencia láser, dinámica adaptada</td></tr>
+      <tr><td><b>PRO</b> 🔵</td><td>9 a 17 años</td><td>La más elegida. Equipamiento Evolution</td></tr>
+      <tr><td><b>MAX</b> 🟣</td><td>18+ / familias</td><td>La experiencia más exclusiva</td></tr>
+    </table>
+    <div class="aviso">Duración 2,5 hs · No se ingresa alcohol (cerveza como adicional) · No comida externa · Quien entra al salón abona gastronomía.</div>
+  </div>
+</section>
+
+<!-- ============ RECONTACTOS ============ -->
+<section id="recontactos">
+  <h2 class="sec">🔄 Recontactos / Seguimientos</h2>
+  <p class="sec-desc">Cuando el cliente ya tiene el presupuesto pero no contesta. Si responde en cualquier momento, seguís normal.</p>
+  <div class="card" style="padding:16px 22px">
+    <label style="margin-bottom:8px">📅 Mes del cumple (define qué mensajes mostrar)</label>
+    <select id="mesRecon" onchange="renderRecon()" style="max-width:280px">
+      <option value="1">Enero</option><option value="2">Febrero</option>
+      <option value="3">Marzo</option><option value="4">Abril</option>
+      <option value="5">Mayo</option><option value="6" selected>Junio</option>
+      <option value="7">Julio</option><option value="8">Agosto</option>
+      <option value="9">Septiembre</option><option value="10">Octubre</option>
+      <option value="11">Noviembre</option><option value="12">Diciembre</option>
+    </select>
+    <div class="hint" style="margin-top:6px">Cada mes puede tener sus propios mensajes. El [DÍA] se completa a mano según la fecha del cliente.</div>
+  </div>
+  <div id="bloquesRecon"></div>
+  <div class="card">
+    <h3>📌 Reglas de uso</h3>
+    <table>
+      <tr><th>Toque</th><th>Cuándo</th><th>Tono</th></tr>
+      <tr><td><b>1. Recordatorio</b></td><td>🤖 Automático — lo manda la IA a las 20 hs del presupuesto</td><td>Blando, sin presión</td></tr>
+      <tr><td><b>2. Escasez</b></td><td>+3 días</td><td>Las fechas se ocupan</td></tr>
+      <tr><td><b>3. Último aviso</b></td><td>+6/7 días</td><td>Cierra o se libera</td></tr>
+    </table>
+    <div class="aviso">Después del toque 3, si no contesta, dejá de insistir. No mandes dos toques el mismo día.</div>
+  </div>
+</section>
+
+<!-- ============ DIFUSIÓN ============ -->
+<section id="difusion">
+  <h2 class="sec">📣 Difusión del combo de invierno</h2>
+  <p class="sec-desc">Qué responder cuando alguien contesta la difusión. Estos contactos YA consultaron antes y YA recibieron presupuesto — vas más directo, no arrancás desde el saludo.</p>
+
+  <div class="card" style="background:#FEF3C7;border-color:#F0CB55">
+    <h3>⚠️ Lo que tenés que saber</h3>
+    <p style="font-size:14px;color:#7C5E10;line-height:1.6">El <b>precio del cumple es el mismo</b> que les pasamos antes. Lo que cambió es la <b>forma de reservar</b>: antes la seña para reservar era mucho más alta, ahora reservan con solo <b>$100.000</b> por transferencia y completan el resto en efectivo en el local. Es una <b>mejora</b> — se comunica como algo bueno, no como un error.</p>
+  </div>
+
+  <div class="card">
+    <h3>🔑 El combo según el mes que cumple</h3>
+    <p style="font-size:14px;line-height:1.6">El combo se <b>disfruta en el receso de julio</b>. Por eso:</p>
+    <table style="margin-top:8px">
+      <tr><th>Cumple en…</th><th>Cómo lo presentás</th></tr>
+      <tr><td><b>Junio o julio</b></td><td>El combo le sirve directo, festejo y receso coinciden</td></tr>
+      <tr><td><b>Agosto en adelante</b></td><td>El combo es un <b>regalo por reservar ahora</b>. Lo disfruta en el receso de julio, NO en su cumple. Aclaráselo siempre.</td></tr>
+    </table>
+  </div>
+
+  <div id="bloquesDifusion"></div>
+
+  <div class="card">
+    <h3>📌 Otras situaciones (sin mensaje fijo)</h3>
+    <table>
+      <tr><th>Si el cliente…</th><th>Qué hacés</th></tr>
+      <tr><td>Responde con los datos directos (cantidad, edad, fecha)</td><td>No pidas más. Andá al <b>Cotizador</b> y mandá el Presupuesto (mensaje 1). Si falta la edad, preguntá solo eso.</td></tr>
+      <tr><td>Quiere reservar</td><td>Andá al <b>Cotizador</b>, cargá día y hora, y mandá la Pre-reserva (mensaje 2).</td></tr>
+      <tr><td>Responde BAJA</td><td>Sacalo de la lista. No le escribas más.</td></tr>
+      <tr><td>No responde</td><td>Seguí la secuencia de <b>Recontactos</b> (ya tienen presupuesto).</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- ============ FAQ / RESPUESTAS RÁPIDAS ============ -->
+<section id="faq">
+  <h2 class="sec">❓ Respuestas rápidas</h2>
+  <p class="sec-desc">Respuestas listas para las preguntas que más hacen los clientes. Tocá "Copiar" y pegá en WhatsApp. Son las mismas respuestas que usa la IA, así todos decimos lo mismo.</p>
+  <div id="bloquesFaq"></div>
+</section>
+
+<!-- ============ AYUDA ============ -->
+<section id="ayuda">
+  <h2 class="sec">📖 Procedimiento de atención</h2>
+  <p class="sec-desc">El paso a paso de cómo atender una consulta de cumple, de principio a fin. Cada paso te dice qué mandar y en qué pestaña está.</p>
+
+  <div class="card">
+    <h3>🔁 El flujo completo de una consulta</h3>
+    <p class="sec-desc">La <b>IA</b> recibe la consulta, junta los datos y deja el contacto listo. <b>Recepción</b> entra a partir de ahí: arma y manda el presupuesto. <b>La venta empieza con el presupuesto.</b></p>
+    <table>
+      <tr><th>#</th><th>Situación</th><th>Quién</th><th>Qué pasa</th></tr>
+      <tr><td>1</td><td>Entra la consulta / saluda</td><td>🤖 IA</td><td>Saluda y pide los datos: edad, fecha o mes, sucursal y cantidad</td></tr>
+      <tr><td>2</td><td>Da la edad</td><td>🤖 IA</td><td>Manda el detalle de la modalidad (NEO / PRO / MAX)</td></tr>
+      <tr><td>3</td><td>Ya están todos los datos</td><td>🤖 IA</td><td>Pasa el contacto al ciclo <b>"Enviar Presupuesto"</b> y avisa a recepción</td></tr>
+      <tr><td>4</td><td>El contacto cae en "Enviar Presupuesto"</td><td>🧑 Recepción</td><td><b>Acá empezás vos.</b> Cargás los datos en el cotizador y mandás el <b>presupuesto</b></td></tr>
+      <tr><td>5</td><td>Justo después del presupuesto</td><td>🧑 Recepción</td><td>Mandás <b>pegado abajo</b> el mensaje "Empujar la reserva" (usa la fecha si la cargaste)</td></tr>
+      <tr><td>6</td><td>Quiere reservar</td><td>🧑 Recepción</td><td>Cargás día y hora → mandás <b>pre-reserva</b> con el alias para los $100.000</td></tr>
+      <tr><td>7</td><td>Mandó el comprobante</td><td>🧑 Recepción</td><td>Mandás la <b>reserva confirmada</b></td></tr>
+      <tr><td>8</td><td>No contesta (a las 20 hs del presupuesto)</td><td>🤖 IA</td><td>Manda sola el primer recordatorio. Vos no hacés nada todavía.</td></tr>
+      <tr><td>9</td><td>Sigue sin contestar</td><td>🧑 Recepción</td><td>Seguís los <b>recontactos</b> desde el toque 2 (escasez, +3 días) y el 3 (último, +6/7)</td></tr>
+    </table>
+    <p class="sec-desc" style="margin-top:10px">Atajos para cualquier momento: <b>Respuestas rápidas</b> (comida, edades, horarios…) · <b>Cerrar venta</b> (objeciones y argumentos).</p>
+  </div>
+
+  <div class="card">
+    <h3>🔄 Cómo funcionan los recontactos según el mes</h3>
+    <div class="step"><div class="num">📅</div><div class="tx"><b>Cumples de junio, julio y agosto</b> (cerca + con combo de invierno): los 3 toques con urgencia. El toque 1 lo manda la IA sola; vos seguís desde el 2.</div></div>
+    <div class="step"><div class="num">📅</div><div class="tx"><b>Cumples de septiembre a diciembre</b> (lejos): por ahora mandás <b>un solo toque suave</b>. La secuencia de 3 toques se arranca recién <b>30-45 días antes del cumple</b>. La difusión va a toda la base igual.</div></div>
+  </div>
+
+  <div class="card">
+    <h3>⚠️ Lo más importante</h3>
+    <div class="step"><div class="num">!</div><div class="tx"><b>Vos arrancás cuando el contacto cae en "Enviar Presupuesto".</b> Antes de eso la IA junta los datos. Tu primer trabajo es armar y mandar el presupuesto — ahí empieza la venta.</div></div>
+    <div class="step"><div class="num">!</div><div class="tx"><b>El presupuesto NO cierra la venta.</b> Mandá siempre, pegado abajo, el mensaje "Empujar la reserva". Ahí es donde se pierde la mayoría de las reservas.</div></div>
+    <div class="step"><div class="num">!</div><div class="tx"><b>Revisá que estén los 4 datos</b> (edad, fecha/mes, sucursal, cantidad) antes de cotizar. Si la IA dejó alguno sin cargar, pedilo vos.</div></div>
+    <div class="step"><div class="num">!</div><div class="tx"><b>Reservás solo con la transferencia de $100.000.</b> Hasta que no manda el comprobante, la fecha no está confirmada. El cliente tiene <b>48 hs</b> para transferir; si no, se libera la fecha.</div></div>
+    <div class="step"><div class="num">!</div><div class="tx"><b>El primer recordatorio lo manda la IA sola</b> a las 20 hs del presupuesto. Vos arrancás los recontactos desde el toque 2 — no repitas el primero.</div></div>
+    <div class="step"><div class="num">!</div><div class="tx"><b>No insistas más de 3 veces.</b> Después del tercer toque sin respuesta, dejá de escribir. No mandes dos toques el mismo día.</div></div>
+  </div>
+
+  <div class="card">
+    <h3>🧮 Cómo usar el cotizador (paso a paso)</h3>
+    <div class="step"><div class="num">1</div><div class="tx">Elegí la <b>sucursal</b> arriba (Caballito o Núñez). Cambia solo el alias de transferencia.</div></div>
+    <div class="step"><div class="num">2</div><div class="tx">Cargá <b>mes, edad y cantidad de chicos</b>. La modalidad (NEO/PRO/MAX) se calcula sola por la edad.</div></div>
+    <div class="step"><div class="num">3</div><div class="tx">Si hay <b>adultos adicionales</b> (más de los 2 incluidos) o <b>cumpleañeros adicionales</b>, cargalos también.</div></div>
+    <div class="step"><div class="num">4</div><div class="tx">Mirá el <b>resumen</b>: precio, efectivo con 30% OFF y ahorro. Ya está todo calculado.</div></div>
+    <div class="step"><div class="num">5</div><div class="tx">Cuando el cliente quiere reservar, cargá <b>día y hora</b> → se completan los mensajes de pre-reserva y confirmación.</div></div>
+    <div class="step"><div class="num">6</div><div class="tx">El mensaje <b>"Empujar la reserva"</b> usa el día/mes que cargaste: si ponés el día, dice "¿querés ver disponibilidad para el 8 de agosto?". Mandalo pegado al presupuesto.</div></div>
+    <div class="step"><div class="num">7</div><div class="tx">Tocá <b>"📋 Copiar"</b> en el mensaje que necesités y pegalo en WhatsApp. Sale con los números correctos.</div></div>
+  </div>
+
+  <p class="footnote">Laser Games Evolution · Centro de Ventas · Uso interno</p>
+</section>
+
+</main>
+</div>
+
+<script type="module">
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+const SUPABASE_URL = "https://biquzbofbmrkptxgewvh.supabase.co";
+const SUPABASE_KEY = "sb_publishable_6JK7V1gkSZnNoK-OYb14xQ_gSa3eQqF";
+const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+let perfil=null, UNIDAD=null, SECCIONES=[];
+let PRECIOS = {};
+const MESES=["","Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
+let SUC = {};
+let FIJOS=[], DIFUSION=[], FAQ=[], CIERRE=[], OFERTA=[], AYUDA=[], COTIZADOR=[], RECON_MES={};
+let CFG = { descuento:0.30, reserva:100000, plazoJunio:"dentro de los 5 días", plazoOtros:"hasta el 30/6" };
+let sucActual = null;
+let tipoActual = "chicos";
+
+function setTipo(t,btn){
+  tipoActual=t;
+  document.getElementById('tipoChicos').classList.toggle('on',t==='chicos');
+  document.getElementById('tipoAdultos').classList.toggle('on',t==='adultos');
+  const esAdultos = t==='adultos';
+  document.getElementById('campoEdad').style.display   = esAdultos?'none':'';
+  document.getElementById('campoAdultos').style.display = esAdultos?'none':'';
+  document.getElementById('campoCumple').style.display  = esAdultos?'none':'';
+  document.getElementById('labelChicos').textContent = esAdultos?'Invitados que juegan':'Chicos que juegan';
+  document.getElementById('hintChicos').textContent  = esAdultos?'Incluí al cumpleañero/a. Mínimo 10.':'Incluí al cumpleañero. Mínimo 10.';
+  calc();
+}
+function fmt(n){ return "$"+Math.round(n).toLocaleString("es-AR").replace(/,/g,"."); }
+function tab(id,btn){
+  document.querySelectorAll('section').forEach(x=>x.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function calc(){
+  const esAdultos = tipoActual==='adultos';
+  const mes=+document.getElementById('mes').value;
+  const edad=+document.getElementById('edad').value||0;
+  let chicos=+document.getElementById('chicos').value||0;
+  // En modo adultos no hay adultos ni cumpleañeros adicionales.
+  const adultos = esAdultos ? 0 : (+document.getElementById('adultos').value||0);
+  const totalAdultos=2+adultos;
+  const regalo = adultos>0 ? "2 te los invitamos nosotros 🎁" : "te los invitamos nosotros 🎁";
+  const adultosTxt = `${totalAdultos} adultos (${regalo})`;
+  const cumpleAd = esAdultos ? 0 : (+document.getElementById('cumple').value||0);
+  const totalCumple=1+cumpleAd;
+  // Línea de cumpleañeros: solo aparece si hay adicionales. Detalla qué incluye cada uno.
+  const cumpleLinea = cumpleAd>0
+    ? `\n🎂 Festejan ${totalCumple} cumpleañeros (cada cumpleañero adicional incluye comida para 2 adultos, torta adicional y regalo para el cumpleañero)`
+    : "";
+  // Versión corta para los resúmenes de pre-reserva y confirmada.
+  const cumpleCorto = cumpleAd>0 ? ` · 🎂 ${totalCumple} cumpleañeros` : "";
+  // Palabra para los participantes según el tipo de cumple.
+  const palabra = esAdultos ? "invitados" : "chicos";
+  const dia=document.getElementById('dia').value.trim();
+  const hora=document.getElementById('hora').value.trim();
+  const suc=SUC[sucActual]||{nombre:"\u2014",alias:"\u2014"};
+
+  let mod = esAdultos ? "MAX" : (edad<=8?"NEO":(edad<=17?"PRO":"MAX"));
+  document.getElementById('modalidad').value=mod;
+
+  let chicosCobro = chicos<10?10:chicos;
+  const factorEfe = 1 - CFG.descuento;
+  const [base,inv,adAd,cuAd]=PRECIOS[mes];
+  const lista = base + chicosCobro*inv + adultos*adAd + cumpleAd*cuAd;
+  const efe = lista*factorEfe;
+  const ahorro = lista-efe;
+  const senaTotal = efe*CFG.descuento;
+  const resto = senaTotal-CFG.reserva;
+  const saldo = efe-senaTotal;
+  const invEfe = inv*factorEfe;
+  const adEfe = adAd*factorEfe;
+  const cumpleEfe = cuAd*factorEfe;
+
+  const composicion = esAdultos ? `${chicos} invitados` : `${chicos} chicos + ${adultosTxt}`;
+  const lineaMinimo = esAdultos
+    ? `M\u00ednimo 10 invitados \u00b7 cada invitado adicional ${fmt(invEfe)}`
+    : `M\u00ednimo 10 chicos \u00b7 cada chico adicional ${fmt(invEfe)} \u00b7 adulto adicional ${fmt(adEfe)}`;
+
+  document.getElementById('rLista').textContent=fmt(lista);
+  document.getElementById('rEfe').textContent=fmt(efe);
+  document.getElementById('rAho').textContent=fmt(ahorro);
+  document.getElementById('rResto').textContent=fmt(resto);
+  document.getElementById('rSaldo').textContent=fmt(saldo);
+
+  const esJunio = mes===6;
+  const plazoCorto = esJunio?CFG.plazoJunio:CFG.plazoOtros;
+  document.getElementById('plazoTxt').textContent=plazoCorto;
+
+  const nombreMes=MESES[mes];
+  const diaTxt = dia||"[D\u00cdA]";
+  const horaTxt = hora||"[HORA]";
+  const fechaLegible = dia ? `el ${dia} de ${nombreMes}` : nombreMes;
+  const adTxt = (!esAdultos && adultos>0) ? ` + ${totalAdultos} adultos` : "";
+  const cortoComp = esAdultos ? `${chicos} invitados` : `${chicos} chicos${adTxt}`;
+
+  const V = {
+    '[SUCURSAL]': suc.nombre, '[ALIAS]': suc.alias,
+    '[COMPOSICION]': composicion, '[CUMPLEA\u00d1EROS]': cumpleLinea, '[CUMPLEANEROS]': cumpleLinea,
+    '[CUMPLE_CORTO]': cumpleCorto, '[LINEA_MINIMO]': lineaMinimo,
+    '[MODALIDAD]': mod, '[PRECIO]': fmt(lista), '[EFECTIVO]': fmt(efe),
+    '[AHORRO]': fmt(ahorro), '[RESERVA]': fmt(CFG.reserva), '[RESTO]': fmt(resto),
+    '[SALDO]': fmt(saldo), '[INVITADO_ADIC]': fmt(invEfe), '[ADULTO_ADIC]': fmt(adEfe),
+    '[CUMPLE_ADIC]': fmt(cumpleEfe), '[PLAZO]': plazoCorto,
+    '[DIA]': diaTxt, '[MES]': nombreMes, '[HORA]': horaTxt, '[FECHA]': fechaLegible,
+    '[CHICOS]': chicos, '[ADULTOS]': adultosTxt
+  };
+  function aplicar(t){ let r=t||""; for(const k in V){ r=r.split(k).join(V[k]); } return r; }
+  const P = id => { const m=(COTIZADOR||[]).find(x=>x.id===id); return m? m.texto : ""; };
+
+  let m1 = aplicar(P('cot_m1'));
+  let m1b = m1.replace(/^\u00a1Hola![^\n]*\n/, '\ud83c\udf82 Te paso el presupuesto:\n');
+  let m1c = `Para ${cortoComp} te queda as\u00ed \ud83c\udfae\n\n\ud83d\udcb0 Precio: ${fmt(lista)}\n\ud83d\udd25 En efectivo: ${fmt(efe)} (30% OFF)`;
+  let m2 = aplicar(P('cot_m2'));
+  let mEmpuje = aplicar(P('cot_empuje'));
+  let mCumpleAd = aplicar(P('cot_cumplead'));
+  let m3 = aplicar(P('cot_m3'));
+  let m4 = aplicar(P('cot_m4'));
+  let m5 = aplicar(P('cot_m5'));
+
+  document.getElementById('m1').textContent=m1;
+  document.getElementById('m1b').textContent=m1b;
+  document.getElementById('m1c').textContent=m1c;
+  document.getElementById('mEmpuje').textContent=mEmpuje;
+  document.getElementById('mCumpleAd').textContent=mCumpleAd;
+  document.getElementById('m2').textContent=m2;
+  document.getElementById('m3').textContent=m3;
+  document.getElementById('m4').textContent=m4;
+  document.getElementById('m5').textContent=m5;
+}
+
+function copyMsg(id,btn){
+  const txt=document.getElementById(id).textContent;
+  navigator.clipboard.writeText(txt).then(()=>{
+    const orig=btn.innerHTML;
+    btn.innerHTML="✅ Copiado";
+    btn.classList.add('ok');
+    setTimeout(()=>{btn.innerHTML=orig;btn.classList.remove('ok')},1600);
+  });
+}
+
+function timingRecon(dias){
+  const n=parseInt(dias||'0',10);
+  return (CFG.reconModo==='antes_cumple')
+    ? `${n} días antes del cumple`
+    : `${n} día${n===1?'':'s'} después del presupuesto`;
+}
+function renderRecon(){
+  const mes=+document.getElementById('mesRecon').value;
+  const m=RECON_MES[mes];
+  const c=document.getElementById('bloquesRecon');
+  if(!c) return; c.innerHTML="";
+  if(!m) return;
+  const bloques=[
+    {t:"1️⃣ Recordatorio suave",cuando:timingRecon(CFG.reconT1),txt:m.recordatorio},
+    {t:"2️⃣ Escasez",cuando:timingRecon(CFG.reconT2),txt:m.escasez},
+    {t:"3️⃣ Último aviso",cuando:timingRecon(CFG.reconT3),txt:m.ultimo}
+  ];
+  bloques.forEach((b,i)=>{
+    const id="recon_"+i;
+    const div=document.createElement('div'); div.className='blkmsg';
+    div.innerHTML=`<div class="bh"><div class="t">${b.t}<span class="tag">— ${b.cuando}</span></div>
+      <button class="btn-copy" onclick="copyFijo('${id}',this)">📋 Copiar</button></div>
+      <div class="bd" id="${id}">${(b.txt||'').replace(/</g,'&lt;')}</div>`;
+    c.appendChild(div);
+  });
+}
+function renderBloques(arr,cont){
+  const c=document.getElementById(cont); if(!c) return; c.innerHTML="";
+  arr.forEach((b,i)=>{
+    const id=cont+"_"+i;
+    const div=document.createElement('div'); div.className='blkmsg';
+    div.innerHTML=`<div class="bh"><div class="t">${b.t}<span class="tag">— ${b.cuando}</span></div>
+      <button class="btn-copy" onclick="copyFijo('${id}',this)">📋 Copiar</button></div>
+      <div class="bd" id="${id}">${(b.txt||'').replace(/</g,'&lt;')}</div>`;
+    c.appendChild(div);
+  });
+}
+function copyFijo(id,btn){
+  const txt=document.getElementById(id).textContent;
+  navigator.clipboard.writeText(txt).then(()=>{
+    const o=btn.innerHTML;btn.innerHTML="✅ Copiado";btn.classList.add('ok');
+    setTimeout(()=>{btn.innerHTML=o;btn.classList.remove('ok')},1600);
+  });
+}
+window.tab=tab; window.calc=calc; window.copyMsg=copyMsg; window.copyFijo=copyFijo;
+window.renderRecon=renderRecon; window.setTipo=setTipo; window.doLogout=doLogout;
+
+async function cargarDatos(){
+  try{
+    const [precios,sucursales,config,mensajes,recon,secciones]=await Promise.all([
+      sb.from('precios').select('*').eq('unidad_negocio',UNIDAD).order('mes'),
+      sb.from('sucursales').select('*').eq('unidad_negocio',UNIDAD),
+      sb.from('config').select('*').eq('unidad_negocio',UNIDAD),
+      sb.from('mensajes').select('*').eq('unidad_negocio',UNIDAD).order('orden'),
+      sb.from('recontactos').select('*').eq('unidad_negocio',UNIDAD).order('mes'),
+      sb.from('unidad_secciones').select('seccion_id,activa').eq('unidad_negocio',UNIDAD).eq('activa',true)
+    ]);
+    if(precios.error||sucursales.error||config.error||mensajes.error||recon.error) throw (precios.error||sucursales.error||config.error||mensajes.error||recon.error);
+    PRECIOS={}; precios.data.forEach(p=>{ PRECIOS[p.mes]=[p.base,p.invitado,p.adulto_adic,p.cumple_adic]; });
+    SUC={}; sucursales.data.forEach(s=>{ SUC[s.id]={nombre:s.nombre,alias:s.alias}; });
+    const cfg={}; config.data.forEach(c=>cfg[c.clave]=c.valor);
+    CFG.descuento=parseFloat(cfg.descuento_efectivo??0.30);
+    CFG.reserva=parseInt(cfg.reserva_transferencia??100000,10);
+    CFG.plazoJunio=cfg.plazo_junio??"";
+    CFG.plazoOtros=cfg.plazo_otros_meses??"";
+    CFG.reconModo=cfg.recon_modo??"despues_presupuesto";
+    CFG.reconT1=cfg.recon_t1??"1";
+    CFG.reconT2=cfg.recon_t2??"3";
+    CFG.reconT3=cfg.recon_t3??"6";
+    FIJOS=[]; DIFUSION=[]; FAQ=[]; CIERRE=[]; OFERTA=[]; AYUDA=[]; COTIZADOR=[];
+    mensajes.data.forEach(m=>{
+      const item={t:m.titulo,cuando:m.cuando||"",txt:m.texto};
+      if(m.categoria==='difusion') DIFUSION.push(item);
+      else if(m.categoria==='faq') FAQ.push(item);
+      else if(m.categoria==='cierre') CIERRE.push(item);
+      else if(m.categoria==='oferta') OFERTA.push(item);
+      else if(m.categoria==='ayuda') AYUDA.push(item);
+      else if(m.categoria==='cotizador') COTIZADOR.push({id:m.id, texto:m.texto});
+      else FIJOS.push(item);
+    });
+    RECON_MES={}; recon.data.forEach(r=>{ RECON_MES[r.mes]={recordatorio:r.recordatorio,escasez:r.escasez,ultimo:r.ultimo}; });
+    SECCIONES=(secciones.data||[]).map(s=>s.seccion_id);
+    return true;
+  }catch(e){ console.error("Error cargando:",e); return false; }
+}
+function aplicarSecciones(){
+  const MAP={presupuestador:'cotizador',mensajes:'mensajes',cierre:'cierre',oferta:'oferta',recontactos:'recontactos',difusion:'difusion',faq:'faq',ayuda:'ayuda'};
+  const botones=[...document.querySelectorAll('#navAsesor button')];
+  let primera=null;
+  botones.forEach(b=>{
+    const activa=SECCIONES.includes(b.dataset.sec);
+    b.style.display=activa?'':'none'; b.classList.remove('active');
+    if(activa && !primera) primera=b;
+  });
+  document.querySelectorAll('main > section').forEach(s=>s.classList.remove('active'));
+  if(primera){ primera.classList.add('active'); const sec=document.getElementById(MAP[primera.dataset.sec]); if(sec) sec.classList.add('active'); }
+}
+function verVista(v){
+  document.getElementById('bootView').style.display=v==='boot'?'flex':'none';
+  document.getElementById('loginView').style.display=v==='login'?'flex':'none';
+  document.getElementById('appView').style.display=v==='app'?'block':'none';
+}
+function alPanel(){ window.location.href='panel.html'; }
+async function doLogout(){ await sb.auth.signOut(); perfil=null; alPanel(); }
+function avisoError(msg){
+  document.querySelector('#appView main')?.insertAdjacentHTML('afterbegin',
+    `<div class="card" style="border-color:#F5C2C2;background:#FDECEC;color:#9E1414">${msg} <a href="panel.html" style="color:#9E1414;font-weight:700">Ir al panel</a></div>`);
+  verVista('app');
+}
+async function arrancarSesion(session){
+  verVista('boot');
+  const { data:p, error } = await sb.from('perfiles').select('*').eq('id',session.user.id).maybeSingle();
+  if(error){ avisoError("No pudimos leer tu perfil."); return; }
+  if(!p || !p.activo){ alPanel(); return; }
+  if(p.rol!=='asesor'){ alPanel(); return; }
+  if(!p.unidad_negocio || !p.sucursal_id){ avisoError("Tu perfil no tiene unidad o sucursal asignada."); return; }
+  perfil=p; UNIDAD=p.unidad_negocio; sucActual=p.sucursal_id;
+  const ok=await cargarDatos();
+  if(!ok){ avisoError("⚠️ No se pudieron cargar los datos. Revisá la conexión y recargá."); return; }
+  const sucNombre=SUC[sucActual]?SUC[sucActual].nombre:sucActual;
+  const sf=document.getElementById('sucFija'); if(sf) sf.textContent="📍 Sucursal: "+sucNombre;
+  renderBloques(DIFUSION,'bloquesDifusion');
+  renderBloques(FIJOS,'bloquesFijos');
+  renderBloques(FAQ,'bloquesFaq');
+  renderBloques(CIERRE,'bloquesCierre');
+  renderRecon();
+  calc();
+  aplicarSecciones();
+  verVista('app');
+}
+async function iniciar(){
+  const { data:{ session } } = await sb.auth.getSession();
+  if(session){ await arrancarSesion(session); } else { alPanel(); }
+  sb.auth.onAuthStateChange((_e,sess)=>{ if(!sess) alPanel(); });
+}
+iniciar();
+</script>
+</body>
+</html>

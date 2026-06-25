@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Laser Games · Intranet</title>
+<style>
+  :root{
+    --rojo:#C81E1E; --rojo-osc:#9E1414; --tinta:#1A1A22; --gris:#6B7280;
+    --bg:#F4F5F7; --card:#FFFFFF; --verde:#15803D; --verde-bg:#E7F6EC;
+    --amar:#FEF3C7; --amar-bd:#F0CB55; --linea:#E5E7EB;
+    --azul:#185FA5; --azul-bg:#E6F1FB; --teal:#0F6E56; --teal-bg:#E1F5EE;
+    --coral:#993C1D; --coral-bg:#FAECE7;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--tinta);line-height:1.5}
+  #bootView{min-height:100vh;display:flex;align-items:center;justify-content:center;color:var(--gris);font-size:14px}
+  #loginView{min-height:100vh;display:none;align-items:center;justify-content:center;padding:24px}
+  .login-box{background:var(--card);border:1px solid var(--linea);border-radius:18px;padding:34px 30px;max-width:380px;width:100%;box-shadow:0 8px 30px rgba(0,0,0,.08)}
+  .login-box .logo{width:54px;height:54px;border-radius:14px;background:var(--rojo);display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 16px}
+  .login-box h1{font-size:20px;font-weight:800;text-align:center;margin-bottom:4px}
+  .login-box .sub{font-size:13.5px;color:var(--gris);text-align:center;margin-bottom:22px}
+  .login-box label{display:block;font-size:13px;font-weight:600;margin-bottom:5px;margin-top:14px;color:#374151}
+  .login-box input{width:100%;padding:12px 13px;border:1.5px solid var(--linea);border-radius:10px;font-size:15px;font-family:inherit}
+  .login-box input:focus{outline:none;border-color:var(--rojo);box-shadow:0 0 0 3px rgba(200,30,30,.1)}
+  .btn-primary{width:100%;margin-top:22px;background:var(--rojo);color:#fff;border:none;padding:13px;border-radius:11px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit}
+  .btn-primary:hover{background:var(--rojo-osc)}
+  .btn-primary:disabled{opacity:.6}
+  .login-err{background:#FDECEC;border:1px solid #F5C2C2;color:#9E1414;border-radius:10px;padding:10px 13px;font-size:13px;margin-top:16px;display:none}
+  #appView{display:none}
+  header{background:linear-gradient(135deg,#1A1A22 0%,#2D1417 60%,#C81E1E 140%);color:#fff;padding:16px 24px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+  header .logo{width:40px;height:40px;border-radius:11px;background:var(--rojo);display:flex;align-items:center;justify-content:center;font-size:21px}
+  header h1{font-size:18px;font-weight:800}
+  header .sub{color:#E9B8B8;font-size:12px;margin-top:1px}
+  header .spacer{flex:1}
+  header .who{font-size:12.5px;color:#E9B8B8;text-align:right;line-height:1.3}
+  header .who b{color:#fff;font-weight:700}
+  .btn-logout{background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.25);padding:8px 14px;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit}
+  .btn-logout:hover{background:rgba(255,255,255,.24)}
+  nav{background:#fff;border-bottom:1px solid var(--linea);display:flex;gap:4px;padding:0 18px;overflow-x:auto;position:sticky;top:0;z-index:40;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+  nav button{background:none;border:none;padding:14px 15px;font-size:14px;font-weight:600;color:var(--gris);cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap;font-family:inherit}
+  nav button:hover{color:var(--tinta)}
+  nav button.active{color:var(--rojo);border-bottom-color:var(--rojo)}
+  main{max-width:960px;margin:0 auto;padding:24px 20px 100px}
+  .role-banner{display:flex;align-items:center;gap:14px;padding:16px 18px;border-radius:14px;margin-bottom:20px}
+  .role-banner .ic{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;background:#fff}
+  .role-banner h2{font-size:17px;font-weight:800}
+  .role-banner p{font-size:13px;color:var(--gris);margin-top:2px}
+  .rb-general{background:var(--azul-bg)} .rb-general .ic{color:var(--azul)}
+  .rb-secundario{background:var(--teal-bg)} .rb-secundario .ic{color:var(--teal)}
+  .card{background:var(--card);border:1px solid var(--linea);border-radius:14px;padding:18px;margin-bottom:14px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+  .card h3{font-size:15.5px;font-weight:700;margin-bottom:14px}
+  h2.sec{font-size:19px;font-weight:800;margin-bottom:3px}
+  .sec-desc{color:var(--gris);font-size:13.5px;margin-bottom:18px}
+  .toolbar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:18px}
+  .toolbar label{font-size:12.5px;font-weight:700;color:var(--gris);text-transform:uppercase;letter-spacing:.3px}
+  select.sel,input.txt{padding:10px 12px;border:1.5px solid var(--linea);border-radius:9px;font-size:14px;font-family:inherit;background:#fff}
+  select.sel{font-weight:600}
+  select.sel:focus,input.txt:focus{outline:none;border-color:var(--rojo);box-shadow:0 0 0 3px rgba(200,30,30,.1)}
+  input.txt{width:100%}
+  table.tdata{width:100%;border-collapse:collapse;font-size:13.5px}
+  table.tdata th,table.tdata td{padding:8px 9px;border-bottom:1px solid var(--linea);text-align:left}
+  table.tdata th{font-size:11.5px;text-transform:uppercase;letter-spacing:.3px;color:#4B5563;font-weight:700}
+  table.tdata td:first-child{font-weight:700}
+  table.tdata input{width:100%;padding:7px 8px;border:1.5px solid var(--linea);border-radius:7px;font-size:13.5px;font-family:inherit;text-align:right}
+  table.tdata input:focus{outline:none;border-color:var(--rojo)}
+  .field{margin-bottom:14px}
+  .field label{display:block;font-size:13px;font-weight:600;margin-bottom:5px;color:#374151}
+  .field .meta{font-size:12px;color:var(--gris);margin-bottom:6px}
+  .field textarea{width:100%;padding:11px 13px;border:1.5px solid var(--linea);border-radius:10px;font-size:13.5px;font-family:inherit;line-height:1.55;resize:vertical;min-height:90px}
+  .field textarea:focus{outline:none;border-color:var(--rojo);box-shadow:0 0 0 3px rgba(200,30,30,.1)}
+  .pill{display:inline-block;background:#FCE8E8;color:var(--rojo);font-size:11px;font-weight:700;padding:2px 9px;border-radius:20px;margin-left:6px}
+  .save-bar{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--linea);padding:13px 24px;display:flex;align-items:center;gap:14px;justify-content:flex-end;box-shadow:0 -2px 12px rgba(0,0,0,.06);z-index:50}
+  .save-bar .status{font-size:13px;color:var(--gris);margin-right:auto}
+  .save-bar .status.ok{color:var(--verde);font-weight:600}
+  .save-bar .status.err{color:var(--rojo);font-weight:600}
+  .btn-save{background:var(--verde);color:#fff;border:none;padding:12px 26px;border-radius:10px;font-size:14.5px;font-weight:700;cursor:pointer;font-family:inherit}
+  .btn-save:hover{background:#0F5C2C}
+  .btn-save:disabled{opacity:.55}
+  .btn-add{background:var(--rojo);color:#fff;border:none;padding:9px 16px;border-radius:9px;font-size:13.5px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:6px}
+  .btn-add:hover{background:var(--rojo-osc)}
+  .btn-mini{background:#fff;border:1.5px solid var(--linea);color:var(--gris);padding:6px 10px;border-radius:8px;font-size:12.5px;font-weight:600;cursor:pointer;font-family:inherit}
+  .btn-mini:hover{border-color:var(--rojo);color:var(--rojo)}
+  .loading{text-align:center;color:var(--gris);padding:36px;font-size:14px}
+  .err-box{background:#FDECEC;border:1px solid #F5C2C2;color:#9E1414;border-radius:12px;padding:14px 16px;font-size:13.5px}
+  .ok-box{background:var(--verde-bg);border:1px solid #BBE5C7;color:#14321F;border-radius:12px;padding:14px 16px;font-size:13.5px}
+  .aviso{background:var(--amar);border:1px solid var(--amar-bd);border-radius:10px;padding:11px 14px;font-size:13px;color:#7C5E10;margin-bottom:14px}
+  .row-form{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  code{background:#fff;border:1px solid #9DC3E6;border-radius:5px;padding:1px 5px;font-size:12px;color:#185FA5;display:inline-block;margin:2px 1px}
+  @media(max-width:560px){.row-form{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div id="bootView">Cargando…</div>
+
+<div id="loginView">
+  <div class="login-box">
+    <div class="logo">🎯</div>
+    <h1>Intranet</h1>
+    <div class="sub">Ingresá con tu usuario</div>
+    <label for="email">Correo</label>
+    <input type="email" id="email" autocomplete="username" placeholder="tu@correo.com">
+    <label for="pass">Contraseña</label>
+    <input type="password" id="pass" autocomplete="current-password" placeholder="••••••••">
+    <button class="btn-primary" id="btnLogin" onclick="doLogin()">Ingresar</button>
+    <div class="login-err" id="loginErr"></div>
+  </div>
+</div>
+
+<div id="appView">
+  <header>
+    <div class="logo">🎯</div>
+    <div><h1>Intranet</h1><div class="sub">Laser Games</div></div>
+    <div class="spacer"></div>
+    <div class="who" id="whoami"></div>
+    <button class="btn-logout" onclick="doLogout()">Salir</button>
+  </header>
+  <nav id="navTabs"></nav>
+  <main id="mainContent"></main>
+  <div class="save-bar" id="saveBar" style="display:none">
+    <div class="status" id="saveStatus"></div>
+    <button class="btn-save" id="btnSave" onclick="saveContenido()">Guardar cambios</button>
+  </div>
+</div>
+
+<script type="module">
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+const SUPABASE_URL = "https://biquzbofbmrkptxgewvh.supabase.co";
+const SUPABASE_KEY = "sb_publishable_6JK7V1gkSZnNoK-OYb14xQ_gSa3eQqF";
+const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
+const MESES=["","Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
+const ROL_NOMBRE={admin_general:"Administrador general",admin_secundario:"Administrador",asesor:"Asesor"};
+
+let perfil=null, unidades=[], unidadActiva=null;
+let state={precios:[],config:[],mensajes:[],recontactos:[]};
+
+function escHtml(s){return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function escAttr(s){return String(s??'').replace(/&/g,'&amp;').replace(/"/g,'&quot;');}
+function ver(v){
+  document.getElementById('bootView').style.display=v==='boot'?'flex':'none';
+  document.getElementById('loginView').style.display=v==='login'?'flex':'none';
+  document.getElementById('appView').style.display=v==='app'?'block':'none';
+}
+
+async function init(){
+  const { data:{ session } } = await sb.auth.getSession();
+  if(session){ await entrar(session); } else { ver('login'); }
+  sb.auth.onAuthStateChange((_e,sess)=>{ if(!sess) ver('login'); });
+}
+async function entrar(session){
+  ver('boot');
+  const { data, error } = await sb.from('perfiles').select('*').eq('id',session.user.id).maybeSingle();
+  if(error){ pantallaError("No pudimos leer tu perfil. Salí y volvé a entrar."); return; }
+  if(!data){ pantallaError(`Tu usuario (${escHtml(session.user.email)}) todavía no tiene un perfil asignado. Pedile al administrador general que te asigne un rol.`); return; }
+  if(!data.activo){ pantallaError("Tu usuario está desactivado. Contactá al administrador."); return; }
+  perfil=data;
+  if(perfil.rol==='asesor'){ window.location.href='intranet.html'; return; }
+  await arrancarAdmin(session.user.email);
+}
+window.doLogin=async function(){
+  const email=document.getElementById('email').value.trim();
+  const pass=document.getElementById('pass').value;
+  const errBox=document.getElementById('loginErr'), btn=document.getElementById('btnLogin');
+  errBox.style.display='none';
+  if(!email||!pass){ errBox.textContent='Completá correo y contraseña.'; errBox.style.display='block'; return; }
+  btn.disabled=true; btn.textContent='Ingresando…';
+  const { data, error } = await sb.auth.signInWithPassword({ email, password:pass });
+  btn.disabled=false; btn.textContent='Ingresar';
+  if(error){ errBox.textContent='No pudimos ingresar. Revisá el correo y la contraseña.'; errBox.style.display='block'; return; }
+  document.getElementById('pass').value='';
+  await entrar(data.session);
+};
+window.doLogout=async function(){ await sb.auth.signOut(); perfil=null; ver('login'); };
+
+function pantallaError(msg){
+  document.getElementById('navTabs').innerHTML='';
+  document.getElementById('whoami').innerHTML='';
+  document.getElementById('saveBar').style.display='none';
+  document.getElementById('mainContent').innerHTML=`<div class="err-box">${msg}</div>`;
+  ver('app');
+}
+
+const ROL_INFO={
+  admin_general:{cls:"rb-general",ic:"🛠️",t:"Administrador general"},
+  admin_secundario:{cls:"rb-secundario",ic:"✏️",t:"Administrador"}
+};
+async function arrancarAdmin(email){
+  const r=ROL_INFO[perfil.rol];
+  document.getElementById('whoami').innerHTML=`<b>${escHtml(perfil.nombre||email)}</b><br>${r?r.t:perfil.rol}`;
+  const { data:us } = await sb.from('unidades').select('*').order('nombre');
+  unidades=us||[];
+  unidadActiva = unidades.length? unidades[0].id : null;
+  const tabs=[{id:'contenido', t:'💰 Contenido'}];
+  if(perfil.rol==='admin_general'){
+    tabs.push({id:'unidades', t:'🏢 Unidades'},{id:'sucursales', t:'📍 Sucursales'},{id:'usuarios', t:'👥 Usuarios'});
+  }
+  document.getElementById('navTabs').innerHTML=tabs.map((t,i)=>`<button class="${i===0?'active':''}" data-tab="${t.id}" onclick="irTab('${t.id}',this)">${t.t}</button>`).join('');
+  ver('app');
+  irTab('contenido', document.querySelector('#navTabs button'));
+}
+window.irTab=function(id,btn){
+  document.querySelectorAll('#navTabs button').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  document.getElementById('saveBar').style.display = (id==='contenido')?'flex':'none';
+  if(id==='contenido') vistaContenido();
+  else if(id==='unidades') vistaUnidades();
+  else if(id==='sucursales') vistaSucursales();
+  else if(id==='usuarios') vistaUsuarios();
+};
+
+async function vistaContenido(){
+  const r=ROL_INFO[perfil.rol];
+  const opts=unidades.map(u=>`<option value="${u.id}" ${u.id===unidadActiva?'selected':''}>${escHtml(u.nombre)}</option>`).join('');
+  document.getElementById('mainContent').innerHTML=`
+    <div class="role-banner ${r.cls}"><div class="ic">${r.ic}</div>
+      <div><h2>Editar contenido</h2><p>Precios, mensajes, recontactos y descuentos. Se actualizan en la intranet de los asesores.</p></div></div>
+    <div class="toolbar"><label>Unidad de negocio</label>
+      <select class="sel" id="unidadSel" onchange="cambiarUnidad()">${opts||'<option>(sin unidades)</option>'}</select></div>
+    <nav id="subNav" style="position:static;box-shadow:none;border:none;padding:0;margin-bottom:16px"></nav>
+    <div id="subBox"><div class="loading">Cargando…</div></div>`;
+  if(!unidadActiva){ document.getElementById('subBox').innerHTML='<div class="aviso">No hay unidades cargadas todavía.</div>'; return; }
+  await prepararSubPestanas(unidadActiva);
+}
+
+// secciones que se editan en Contenido (las que tienen datos editables)
+const SEC_EDITABLE = {
+  presupuestador: {label:'Precios', sub:'precios'},   // el presupuestador usa precios + config
+  mensajes:       {label:'Mensajes', sub:'mensajes'},
+  recontactos:    {label:'Recontactos', sub:'recon'},
+};
+async function prepararSubPestanas(u){
+  // traer secciones activas de la unidad
+  const { data:us } = await sb.from('unidad_secciones').select('seccion_id,activa').eq('unidad_negocio',u).eq('activa',true);
+  const activas=(us||[]).map(x=>x.seccion_id);
+  await cargarContenido(u);
+
+  // armar sub-pestañas segun secciones activas
+  const subs=[];
+  if(activas.includes('presupuestador')){ subs.push({sub:'precios',label:'Precios'}); subs.push({sub:'config',label:'Descuento y plazos'}); subs.push({sub:'mensajes_cotizador',label:'Textos del cotizador'}); }
+  if(activas.includes('mensajes')) subs.push({sub:'mensajes',label:'Mensajes'});
+  if(activas.includes('cierre')) subs.push({sub:'mensajes_cierre',label:'Cerrar venta'});
+  if(activas.includes('oferta')) subs.push({sub:'mensajes_oferta',label:'La oferta'});
+  if(activas.includes('difusion')) subs.push({sub:'mensajes_dif',label:'Difusión'});
+  if(activas.includes('faq')) subs.push({sub:'mensajes_faq',label:'Respuestas rápidas'});
+  if(activas.includes('ayuda')) subs.push({sub:'mensajes_ayuda',label:'Procedimiento'});
+  if(activas.includes('recontactos')) subs.push({sub:'recon',label:'Recontactos'});
+
+  const nav=document.getElementById('subNav');
+  if(!subs.length){
+    nav.innerHTML='';
+    document.getElementById('subBox').innerHTML='<div class="aviso">Esta unidad no tiene secciones editables activas. Activalas en la pestaña Unidades → Editar secciones.</div>';
+    return;
+  }
+  nav.innerHTML=subs.map((s,i)=>`<button class="${i===0?'active':''}" data-sub="${s.sub}" onclick="subTab('${s.sub}',this)">${s.label}</button>`).join('');
+  subTab(subs[0].sub, nav.querySelector('button'));
+}
+window.cambiarUnidad=async function(){
+  unidadActiva=document.getElementById('unidadSel').value;
+  await prepararSubPestanas(unidadActiva);
+};
+async function cargarContenido(u){
+  const [p,c,m,r]=await Promise.all([
+    sb.from('precios').select('*').eq('unidad_negocio',u).order('mes'),
+    sb.from('config').select('*').eq('unidad_negocio',u).order('clave'),
+    sb.from('mensajes').select('*').eq('unidad_negocio',u).order('categoria').order('orden'),
+    sb.from('recontactos').select('*').eq('unidad_negocio',u).order('mes')
+  ]);
+  state.precios=p.data||[]; state.config=c.data||[]; state.mensajes=m.data||[]; state.recontactos=r.data||[];
+}
+window.subTab=function(id,btn){
+  document.querySelectorAll('#subNav button').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  const box=document.getElementById('subBox');
+  if(id==='precios') box.innerHTML=htmlPrecios();
+  else if(id==='mensajes') box.innerHTML=htmlMensajes('fijo');
+  else if(id==='mensajes_dif') box.innerHTML=htmlMensajes('difusion');
+  else if(id==='mensajes_cierre') box.innerHTML=htmlMensajes('cierre');
+  else if(id==='mensajes_oferta') box.innerHTML=htmlMensajes('oferta');
+  else if(id==='mensajes_ayuda') box.innerHTML=htmlMensajes('ayuda');
+  else if(id==='mensajes_cotizador') box.innerHTML=htmlCotizador();
+  else if(id==='mensajes_faq') box.innerHTML=htmlMensajes('faq');
+  else if(id==='config') box.innerHTML=htmlConfig();
+  else if(id==='recon') box.innerHTML=htmlRecon();
+  enlazarInputs(id);
+};
+function htmlPrecios(){
+  if(!state.precios.length) return '<div class="aviso">Esta unidad no tiene precios cargados.</div>';
+  let h=`<div class="card"><table class="tdata"><tr><th>Mes</th><th>Base</th><th>Invitado</th><th>Adulto adic.</th><th>Cumple adic.</th></tr>`;
+  state.precios.forEach((p,i)=>{ h+=`<tr><td>${escHtml(p.nombre)}</td>
+    <td><input type="number" data-i="${i}" data-f="base" value="${p.base}"></td>
+    <td><input type="number" data-i="${i}" data-f="invitado" value="${p.invitado}"></td>
+    <td><input type="number" data-i="${i}" data-f="adulto_adic" value="${p.adulto_adic}"></td>
+    <td><input type="number" data-i="${i}" data-f="cumple_adic" value="${p.cumple_adic}"></td></tr>`; });
+  return h+`</table></div>`;
+}
+const CFG_LBL={descuento_efectivo:"Descuento en efectivo (0.30 = 30%)",reserva_transferencia:"Reserva por transferencia ($)",plazo_junio:"Plazo resto de seña — junio",plazo_otros_meses:"Plazo resto de seña — otros meses"};
+function htmlConfig(){
+  if(!state.config.length) return '<div class="aviso">Sin configuración para esta unidad.</div>';
+  let h='<div class="card">';
+  state.config.forEach((c,i)=>{ h+=`<div class="field"><label>${escHtml(CFG_LBL[c.clave]||c.clave)}</label>
+    <input class="txt" type="text" data-i="${i}" value="${escAttr(c.valor)}"></div>`; });
+  return h+'</div>';
+}
+function htmlCotizador(){
+  const lista=state.mensajes.filter(m=>m.categoria==='cotizador');
+  const guia=`<div class="aviso" style="background:#E6F1FB;border-color:#9DC3E6;color:#185FA5">
+    <b>Marcadores disponibles</b> — escribilos tal cual y el sistema los reemplaza por el número real:<br>
+    <code>[SUCURSAL]</code> <code>[ALIAS]</code> <code>[COMPOSICION]</code> <code>[CUMPLEAÑEROS]</code> <code>[CUMPLE_CORTO]</code> <code>[LINEA_MINIMO]</code> <code>[MODALIDAD]</code>
+    <code>[PRECIO]</code> <code>[EFECTIVO]</code> <code>[AHORRO]</code> <code>[RESERVA]</code> <code>[RESTO]</code> <code>[SALDO]</code>
+    <code>[INVITADO_ADIC]</code> <code>[ADULTO_ADIC]</code> <code>[CUMPLE_ADIC]</code> <code>[PLAZO]</code> <code>[DIA]</code> <code>[MES]</code> <code>[HORA]</code> <code>[FECHA]</code><br>
+    <span style="font-size:11.5px">💡 <b>[COMPOSICION]</b> = "18 chicos + 4 adultos" o "18 invitados" · <b>[LINEA_MINIMO]</b> = la línea de mínimos y adicionales, según el tipo de cumple.</span><br>
+    <b>Importante:</b> no borres los corchetes ni cambies el nombre de adentro, o ese dato dejará de aparecer.</div>`;
+  if(!lista.length) return guia+'<div class="aviso">Sin textos del cotizador para esta unidad.</div>';
+  let h=guia;
+  lista.forEach((m)=>{
+    const i=state.mensajes.indexOf(m);
+    h+=`<div class="card"><div class="field" style="margin-bottom:8px"><label>${escHtml(m.titulo)} <span class="pill">${escHtml(m.id)}</span></label>
+      <div class="meta">${escHtml(m.cuando||'')}</div></div>
+      <textarea data-i="${i}" rows="9">${escHtml(m.texto)}</textarea></div>`;
+  });
+  return h;
+}
+function htmlMensajes(cat){
+  const lista=state.mensajes.filter(m=>m.categoria===cat);
+  const nombres={fijo:'mensajes',difusion:'mensajes de difusión',cierre:'mensajes de cierre',faq:'respuestas rápidas',oferta:'bloques de la oferta',ayuda:'bloques del procedimiento'};
+  if(!lista.length) return `<div class="aviso">Sin ${nombres[cat]||'mensajes'} para esta unidad.</div>`;
+  let h='';
+  lista.forEach((m)=>{
+    const i=state.mensajes.indexOf(m);
+    h+=`<div class="card"><div class="field" style="margin-bottom:8px"><label>${escHtml(m.titulo)} <span class="pill">${escHtml(m.id)}</span></label>
+      <div class="meta">${escHtml(m.cuando||'')}</div></div>
+      <textarea data-i="${i}" rows="6">${escHtml(m.texto)}</textarea></div>`;
+  });
+  return h;
+}
+function cfgVal(clave, def){ const c=state.config.find(x=>x.clave===clave); return c? c.valor : def; }
+function setCfg(clave, valor){
+  let c=state.config.find(x=>x.clave===clave);
+  if(c) c.valor=valor; else state.config.push({clave, valor});
+}
+function htmlRecon(){
+  if(!state.recontactos.length) return '<div class="aviso">Sin recontactos para esta unidad.</div>';
+  const modo=cfgVal('recon_modo','despues_presupuesto');
+  const t1=cfgVal('recon_t1','1'), t2=cfgVal('recon_t2','3'), t3=cfgVal('recon_t3','6');
+  const opts=state.recontactos.map(r=>`<option value="${r.mes}">${MESES[r.mes]}</option>`).join('');
+  return `<div class="card" style="border-color:#9DC3E6;background:#F4F9FE">
+      <h3 style="margin-bottom:10px">⏱️ Cuándo se envían los recontactos</h3>
+      <div class="field"><label>Modo</label>
+        <select class="sel" id="reconModo" style="width:100%" onchange="cambiarReconModo()">
+          <option value="despues_presupuesto" ${modo==='despues_presupuesto'?'selected':''}>Días después de enviar el presupuesto</option>
+          <option value="antes_cumple" ${modo==='antes_cumple'?'selected':''}>Días antes del cumpleaños</option>
+        </select></div>
+      <div class="row-form">
+        <div class="field" style="margin:0"><label>Toque 1 (días)</label><input class="txt" type="number" id="reconT1" value="${escAttr(t1)}" min="0" oninput="guardarReconTiming()"></div>
+        <div class="field" style="margin:0"><label>Toque 2 (días)</label><input class="txt" type="number" id="reconT2" value="${escAttr(t2)}" min="0" oninput="guardarReconTiming()"></div>
+        <div class="field" style="margin:0"><label>Toque 3 (días)</label><input class="txt" type="number" id="reconT3" value="${escAttr(t3)}" min="0" oninput="guardarReconTiming()"></div>
+      </div>
+      <div class="meta" id="reconTimingHint" style="margin-top:8px"></div>
+    </div>
+    <div class="card" style="padding:14px 16px"><label style="font-size:13px;font-weight:600">Texto del mes a editar</label><br>
+      <select class="sel" id="reconMesSel" style="margin-top:6px" onchange="pintarRecon()">${opts}</select></div>
+    <div id="reconBox"></div>`;
+}
+window.cambiarReconModo=function(){ setCfg('recon_modo', document.getElementById('reconModo').value); pintarHintTiming(); pintarRecon(); };
+window.guardarReconTiming=function(){
+  setCfg('recon_t1', document.getElementById('reconT1').value||'0');
+  setCfg('recon_t2', document.getElementById('reconT2').value||'0');
+  setCfg('recon_t3', document.getElementById('reconT3').value||'0');
+  pintarHintTiming(); pintarRecon();
+};
+function textoTiming(modo, dias){
+  const n=parseInt(dias||'0',10);
+  return modo==='antes_cumple' ? `${n} días antes del cumple` : `${n} día${n===1?'':'s'} después del presupuesto`;
+}
+function pintarHintTiming(){
+  const modo=cfgVal('recon_modo','despues_presupuesto');
+  const el=document.getElementById('reconTimingHint');
+  if(el) el.textContent = modo==='antes_cumple'
+    ? 'Los toques se cuentan en días ANTES de la fecha del cumple.'
+    : 'Los toques se cuentan en días DESPUÉS de enviar el presupuesto.';
+}
+window.pintarRecon=function(){
+  const mes=+document.getElementById('reconMesSel').value;
+  const idx=state.recontactos.findIndex(r=>r.mes===mes);
+  const box=document.getElementById('reconBox');
+  if(idx<0){ box.innerHTML=''; return; }
+  const r=state.recontactos[idx];
+  const modo=cfgVal('recon_modo','despues_presupuesto');
+  const e1=textoTiming(modo, cfgVal('recon_t1','1'));
+  const e2=textoTiming(modo, cfgVal('recon_t2','3'));
+  const e3=textoTiming(modo, cfgVal('recon_t3','6'));
+  box.innerHTML=`<div class="card">
+    <div class="field"><label>1️⃣ Recordatorio <span class="meta">— ${escHtml(e1)}</span></label><textarea data-rec="${idx}" data-f="recordatorio" rows="4">${escHtml(r.recordatorio)}</textarea></div>
+    <div class="field"><label>2️⃣ Escasez <span class="meta">— ${escHtml(e2)}</span></label><textarea data-rec="${idx}" data-f="escasez" rows="4">${escHtml(r.escasez)}</textarea></div>
+    <div class="field" style="margin-bottom:0"><label>3️⃣ Último aviso <span class="meta">— ${escHtml(e3)}</span></label><textarea data-rec="${idx}" data-f="ultimo" rows="4">${escHtml(r.ultimo)}</textarea></div></div>`;
+  box.querySelectorAll('textarea').forEach(t=>t.addEventListener('input',e=>{ state.recontactos[+e.target.dataset.rec][e.target.dataset.f]=e.target.value; }));
+};
+function enlazarInputs(id){
+  const box=document.getElementById('subBox');
+  if(id==='precios') box.querySelectorAll('input').forEach(inp=>inp.addEventListener('input',e=>{ state.precios[+e.target.dataset.i][e.target.dataset.f]=+e.target.value||0; }));
+  else if(id==='config') box.querySelectorAll('input').forEach(inp=>inp.addEventListener('input',e=>{ state.config[+e.target.dataset.i].valor=e.target.value; }));
+  else if(id==='mensajes'||id==='mensajes_dif'||id==='mensajes_cierre'||id==='mensajes_faq'||id==='mensajes_oferta'||id==='mensajes_ayuda'||id==='mensajes_cotizador') box.querySelectorAll('textarea').forEach(t=>t.addEventListener('input',e=>{ state.mensajes[+e.target.dataset.i].texto=e.target.value; }));
+  else if(id==='recon'){ pintarHintTiming(); const sel=document.getElementById('reconMesSel'); if(sel) pintarRecon(); }
+}
+window.saveContenido=async function(){
+  const btn=document.getElementById('btnSave'); btn.disabled=true; setStatus('Guardando…');
+  try{
+    const u=unidadActiva; const tareas=[];
+    if(state.precios.length) tareas.push(sb.from('precios').upsert(state.precios.map(p=>({unidad_negocio:u,mes:p.mes,nombre:p.nombre,base:p.base,invitado:p.invitado,adulto_adic:p.adulto_adic,cumple_adic:p.cumple_adic})),{onConflict:'unidad_negocio,mes'}));
+    if(state.config.length) tareas.push(sb.from('config').upsert(state.config.map(c=>({unidad_negocio:u,clave:c.clave,valor:String(c.valor)})),{onConflict:'unidad_negocio,clave'}));
+    if(state.mensajes.length) tareas.push(sb.from('mensajes').upsert(state.mensajes.map(m=>({unidad_negocio:u,id:m.id,categoria:m.categoria,titulo:m.titulo,cuando:m.cuando,texto:m.texto,orden:m.orden})),{onConflict:'unidad_negocio,id'}));
+    if(state.recontactos.length) tareas.push(sb.from('recontactos').upsert(state.recontactos.map(r=>({unidad_negocio:u,mes:r.mes,recordatorio:r.recordatorio,escasez:r.escasez,ultimo:r.ultimo})),{onConflict:'unidad_negocio,mes'}));
+    const res=await Promise.all(tareas);
+    const fail=res.find(x=>x.error); if(fail) throw fail.error;
+    setStatus('Cambios guardados ✓','ok');
+  }catch(e){ setStatus('No se pudo guardar. ¿Tenés permisos sobre esta unidad?','err'); console.error(e); }
+  finally{ btn.disabled=false; }
+};
+function setStatus(t,k){ const el=document.getElementById('saveStatus'); el.textContent=t; el.className='status'+(k?' '+k:''); if(k==='ok') setTimeout(()=>{ if(el.textContent===t){el.textContent='';el.className='status';} },3000); }
+
+async function vistaUnidades(){
+  const { data } = await sb.from('unidades').select('*').order('nombre'); unidades=data||[];
+  const { data:secs } = await sb.from('secciones').select('*').order('orden');
+  const { data:us } = await sb.from('unidad_secciones').select('*');
+  const activasDe=(uid)=> (us||[]).filter(x=>x.unidad_negocio===uid && x.activa).map(x=>x.seccion_id);
+  const checks=(secs||[]).map(s=>`<label style="display:inline-flex;align-items:center;gap:6px;margin:0 14px 8px 0;font-size:13.5px;font-weight:500;cursor:pointer">
+      <input type="checkbox" class="secChk" value="${s.id}" checked> ${escHtml(s.nombre)}</label>`).join('');
+  const filas=unidades.map(u=>{
+    const act=activasDe(u.id);
+    const txt = act.length? (secs||[]).filter(s=>act.includes(s.id)).map(s=>s.nombre).join(', ') : '—';
+    return `<tr><td>${escHtml(u.nombre)}</td><td>${escHtml(u.id)}</td><td style="font-weight:400;font-size:12.5px;color:var(--gris)">${escHtml(txt)}</td>
+      <td><button class="btn-mini" onclick="editarSecciones('${u.id}')">Editar secciones</button>
+        <button class="btn-mini" style="border-color:#E5A0A0;color:#C81E1E" onclick="borrarUnidad('${u.id}','${escAttr(u.nombre)}')">🗑 Borrar</button></td></tr>`;
+  }).join('');
+  document.getElementById('mainContent').innerHTML=`
+    <h2 class="sec">🏢 Unidades de negocio</h2>
+    <p class="sec-desc">Las marcas. Elegí qué secciones tiene cada una: eso define qué ve el asesor y qué edita el administrador.</p>
+    <div class="card"><h3>Agregar unidad</h3>
+      <div class="row-form">
+        <div class="field" style="margin:0"><label>Nombre</label><input class="txt" id="uNombre" placeholder="Ej: Escape Games"></div>
+        <div class="field" style="margin:0"><label>Identificador (sin espacios)</label><input class="txt" id="uId" placeholder="Ej: escape_games"></div>
+      </div>
+      <div class="field" style="margin-top:12px"><label>Secciones que tendrá esta unidad</label>
+        <div style="margin-top:4px">${checks}</div></div>
+      <div class="aviso">El identificador no se cambia después. Las secciones nacen vacías (sin precios ni textos); se completan en Contenido.</div>
+      <button class="btn-add" onclick="crearUnidad()">Crear unidad</button>
+      <div id="uMsg" style="margin-top:10px"></div>
+    </div>
+    <div class="card"><h3>Unidades existentes</h3>
+      <table class="tdata"><tr><th>Nombre</th><th>ID</th><th>Secciones activas</th><th></th></tr>${filas||'<tr><td colspan=4>—</td></tr>'}</table></div>
+    <div id="editSecBox"></div>`;
+}
+window.crearUnidad=async function(){
+  const nombre=document.getElementById('uNombre').value.trim();
+  const id=document.getElementById('uId').value.trim().toLowerCase();
+  const msg=document.getElementById('uMsg');
+  if(!nombre||!id){ msg.innerHTML='<div class="err-box">Completá nombre e identificador.</div>'; return; }
+  if(!/^[a-z0-9_]+$/.test(id)){ msg.innerHTML='<div class="err-box">El identificador solo puede tener minúsculas, números y guión bajo.</div>'; return; }
+  const secsElegidas=[...document.querySelectorAll('.secChk:checked')].map(c=>c.value);
+  const { error }=await sb.from('unidades').insert({id, nombre});
+  if(error){ msg.innerHTML=`<div class="err-box">No se pudo crear: ${escHtml(error.message)}</div>`; return; }
+  if(secsElegidas.length){
+    await sb.from('unidad_secciones').insert(secsElegidas.map(s=>({unidad_negocio:id, seccion_id:s, activa:true})));
+    // sembrar campos vacios de cada seccion activada
+    let errSiembra=null;
+    for(const s of secsElegidas){
+      const { error:eS }=await sb.rpc('sembrar_seccion',{u:id, sec:s});
+      if(eS) errSiembra=eS;
+    }
+    if(errSiembra){ msg.innerHTML=`<div class="err-box">Unidad creada, pero no se pudieron generar los campos: ${escHtml(errSiembra.message)}. Avisá al desarrollador.</div>`; await vistaUnidades(); return; }
+  }
+  msg.innerHTML='<div class="ok-box">Unidad creada ✓ Ya podés cargar su contenido en la pestaña Contenido.</div>';
+  await vistaUnidades();
+};
+window.editarSecciones=async function(uid){
+  const { data:secs } = await sb.from('secciones').select('*').order('orden');
+  const { data:us } = await sb.from('unidad_secciones').select('*').eq('unidad_negocio',uid);
+  const activas=(us||[]).filter(x=>x.activa).map(x=>x.seccion_id);
+  const u=unidades.find(x=>x.id===uid);
+  const checks=(secs||[]).map(s=>`<label style="display:inline-flex;align-items:center;gap:6px;margin:0 14px 8px 0;font-size:13.5px;font-weight:500;cursor:pointer">
+      <input type="checkbox" class="secEdit" value="${s.id}" ${activas.includes(s.id)?'checked':''}> ${escHtml(s.nombre)}</label>`).join('');
+  document.getElementById('editSecBox').innerHTML=`<div class="card" style="border-color:var(--rojo)">
+    <h3>Secciones de ${escHtml(u?u.nombre:uid)}</h3>
+    <div>${checks}</div>
+    <button class="btn-add" onclick="guardarSecciones('${uid}')">Guardar secciones</button>
+    <div id="esMsg" style="margin-top:10px"></div></div>`;
+  document.getElementById('editSecBox').scrollIntoView({behavior:'smooth'});
+};
+window.guardarSecciones=async function(uid){
+  const elegidas=[...document.querySelectorAll('.secEdit:checked')].map(c=>c.value);
+  const { data:secs } = await sb.from('secciones').select('id');
+  const filas=(secs||[]).map(s=>({unidad_negocio:uid, seccion_id:s.id, activa:elegidas.includes(s.id)}));
+  const { error }=await sb.from('unidad_secciones').upsert(filas,{onConflict:'unidad_negocio,seccion_id'});
+  const msg=document.getElementById('esMsg');
+  if(error){ msg.innerHTML=`<div class="err-box">No se pudo guardar: ${escHtml(error.message)}</div>`; return; }
+  // sembrar campos de las secciones activas (idempotente: si ya existen, no duplica)
+  let errSiembra=null;
+  for(const s of elegidas){
+    const { error:eS }=await sb.rpc('sembrar_seccion',{u:uid, sec:s});
+    if(eS) errSiembra=eS;
+  }
+  if(errSiembra){ msg.innerHTML=`<div class="err-box">Secciones guardadas, pero no se generaron los campos: ${escHtml(errSiembra.message)}. Avisá al desarrollador.</div>`; await vistaUnidades(); return; }
+  msg.innerHTML='<div class="ok-box">Secciones actualizadas ✓ Los campos están listos para editar en Contenido.</div>';
+  await vistaUnidades();
+};
+window.borrarUnidad=async function(uid,nombre){
+  if(!confirm(`¿Borrar la unidad "${nombre}" y TODO su contenido (precios, mensajes, recontactos)?\n\nEsta acción no se puede deshacer.`)) return;
+  const { error }=await sb.rpc('borrar_unidad',{u:uid});
+  if(error){ alert('No se pudo borrar: '+error.message); return; }
+  unidades=unidades.filter(u=>u.id!==uid);
+  if(unidadActiva===uid) unidadActiva = unidades.length? unidades[0].id : null;
+  await vistaUnidades();
+};
+
+async function vistaSucursales(){
+  const { data:us } = await sb.from('unidades').select('*').order('nombre'); unidades=us||[];
+  const { data:sucs } = await sb.from('sucursales').select('*').order('unidad_negocio');
+  const opts=unidades.map(u=>`<option value="${u.id}">${escHtml(u.nombre)}</option>`).join('');
+  const nombreUnidad=id=>{ const u=unidades.find(x=>x.id===id); return u?u.nombre:id; };
+  const filas=(sucs||[]).map(s=>`<tr><td>${escHtml(s.nombre)}</td><td>${escHtml(nombreUnidad(s.unidad_negocio))}</td><td>${escHtml(s.alias)}</td>
+    <td><button class="btn-mini" style="border-color:#E5A0A0;color:#C81E1E" onclick="borrarSucursal('${s.unidad_negocio}','${s.id}','${escAttr(s.nombre)}')">🗑 Borrar</button></td></tr>`).join('');
+  document.getElementById('mainContent').innerHTML=`
+    <h2 class="sec">📍 Sucursales</h2>
+    <p class="sec-desc">Cada sucursal pertenece a una unidad. El alias y la reseña son propios de la sucursal.</p>
+    <div class="card"><h3>Agregar sucursal</h3>
+      <div class="row-form">
+        <div class="field" style="margin:0"><label>Unidad</label><select class="sel" id="sUnidad" style="width:100%">${opts}</select></div>
+        <div class="field" style="margin:0"><label>Nombre</label><input class="txt" id="sNombre" placeholder="Ej: Santelmo"></div>
+        <div class="field" style="margin:0"><label>Identificador (sin espacios)</label><input class="txt" id="sId" placeholder="Ej: santelmo"></div>
+        <div class="field" style="margin:0"><label>Alias de transferencia</label><input class="txt" id="sAlias" placeholder="Ej: escapesantelmo"></div>
+        <div class="field" style="margin:0;grid-column:1/-1"><label>Link de reseña</label><input class="txt" id="sResena" placeholder="https://g.page/..."></div>
+      </div>
+      <button class="btn-add" onclick="crearSucursal()">Crear sucursal</button>
+      <div id="sMsg" style="margin-top:10px"></div>
+    </div>
+    <div class="card"><h3>Sucursales existentes</h3>
+      <table class="tdata"><tr><th>Sucursal</th><th>Unidad</th><th>Alias</th><th></th></tr>${filas||'<tr><td colspan=4>—</td></tr>'}</table></div>`;
+}
+window.crearSucursal=async function(){
+  const unidad=document.getElementById('sUnidad').value;
+  const nombre=document.getElementById('sNombre').value.trim();
+  const id=document.getElementById('sId').value.trim().toLowerCase();
+  const alias=document.getElementById('sAlias').value.trim();
+  const resena=document.getElementById('sResena').value.trim();
+  const msg=document.getElementById('sMsg');
+  if(!unidad||!nombre||!id||!alias){ msg.innerHTML='<div class="err-box">Completá unidad, nombre, identificador y alias.</div>'; return; }
+  if(!/^[a-z0-9_]+$/.test(id)){ msg.innerHTML='<div class="err-box">El identificador solo puede tener minúsculas, números y guión bajo.</div>'; return; }
+  const { error }=await sb.from('sucursales').insert({id, unidad_negocio:unidad, nombre, alias, resena_url:resena});
+  if(error){ msg.innerHTML=`<div class="err-box">No se pudo crear: ${escHtml(error.message)}</div>`; return; }
+  msg.innerHTML='<div class="ok-box">Sucursal creada ✓</div>'; await vistaSucursales();
+};
+window.borrarSucursal=async function(uid,sid,nombre){
+  if(!confirm(`¿Borrar la sucursal "${nombre}"?\n\nEsta acción no se puede deshacer.`)) return;
+  const { error }=await sb.rpc('borrar_sucursal',{u:uid, sid:sid});
+  if(error){ alert('No se pudo borrar: '+error.message); return; }
+  await vistaSucursales();
+};
+
+async function vistaUsuarios(){
+  const { data:us } = await sb.from('unidades').select('*').order('nombre'); unidades=us||[];
+  const { data:sucs } = await sb.from('sucursales').select('*').order('unidad_negocio');
+  const { data:perfiles } = await sb.from('perfiles').select('*').order('rol');
+  const optsUnidad=unidades.map(u=>`<option value="${u.id}">${escHtml(u.nombre)}</option>`).join('');
+  const optsSuc=(sucs||[]).map(s=>`<option value="${s.id}" data-u="${s.unidad_negocio}">${escHtml(s.nombre)}</option>`).join('');
+  const nombreUnidad=id=>{ const u=unidades.find(x=>x.id===id); return u?u.nombre:(id||'—'); };
+  const filas=(perfiles||[]).map(p=>`<tr><td>${escHtml(p.email||'')}</td><td>${escHtml(ROL_NOMBRE[p.rol]||p.rol)}</td><td>${escHtml(p.unidad_negocio?nombreUnidad(p.unidad_negocio):'todas')}</td><td>${escHtml(p.sucursal_id||'—')}</td><td>${p.activo?'Sí':'No'}</td>
+    <td><button class="btn-mini" style="border-color:#E5A0A0;color:#C81E1E" onclick="borrarUsuario('${p.id}','${escAttr(p.email||'')}')">🗑 Borrar</button></td></tr>`).join('');
+  document.getElementById('mainContent').innerHTML=`
+    <h2 class="sec">👥 Usuarios y permisos</h2>
+    <p class="sec-desc">Asigná rol y pertenencia a cada usuario.</p>
+    <div class="aviso">Al guardar un usuario nuevo, le llega un mail para que defina su contraseña. Si el correo ya existe, se actualiza su rol.</div>
+    <div class="card"><h3>Asignar rol</h3>
+      <div class="row-form">
+        <div class="field" style="margin:0;grid-column:1/-1"><label>Correo del usuario</label><input class="txt" id="puEmail" placeholder="usuario@correo.com"></div>
+        <div class="field" style="margin:0"><label>Rol</label>
+          <select class="sel" id="puRol" style="width:100%" onchange="toggleCamposRol()">
+            <option value="asesor">Asesor</option>
+            <option value="admin_secundario">Administrador</option>
+            <option value="admin_general">Administrador general</option>
+          </select></div>
+        <div class="field" style="margin:0" id="campoUnidad"><label>Unidad (asesor)</label><select class="sel" id="puUnidad" style="width:100%" onchange="filtrarSucursales()">${optsUnidad}</select></div>
+        <div class="field" style="margin:0" id="campoSuc"><label>Sucursal (asesor)</label><select class="sel" id="puSuc" style="width:100%">${optsSuc}</select></div>
+      </div>
+      <button class="btn-add" onclick="asignarRol()">Guardar usuario</button>
+      <div id="puMsg" style="margin-top:10px"></div>
+    </div>
+    <div class="card"><h3>Usuarios existentes</h3>
+      <table class="tdata"><tr><th>Correo</th><th>Rol</th><th>Unidad</th><th>Sucursal</th><th>Activo</th><th></th></tr>${filas||'<tr><td colspan=6>—</td></tr>'}</table></div>`;
+  toggleCamposRol(); filtrarSucursales();
+}
+window.toggleCamposRol=function(){
+  const esAsesor=document.getElementById('puRol').value==='asesor';
+  document.getElementById('campoUnidad').style.display=esAsesor?'block':'none';
+  document.getElementById('campoSuc').style.display=esAsesor?'block':'none';
+};
+window.filtrarSucursales=function(){
+  const u=document.getElementById('puUnidad').value;
+  document.querySelectorAll('#puSuc option').forEach(o=>{ o.style.display = o.dataset.u===u?'block':'none'; });
+  const vis=[...document.querySelectorAll('#puSuc option')].find(o=>o.dataset.u===u);
+  if(vis) document.getElementById('puSuc').value=vis.value;
+};
+window.asignarRol=async function(){
+  const email=document.getElementById('puEmail').value.trim().toLowerCase();
+  const rol=document.getElementById('puRol').value;
+  const msg=document.getElementById('puMsg');
+  if(!email){ msg.innerHTML='<div class="err-box">Ingresá el correo.</div>'; return; }
+  let unidad=null, suc=null;
+  if(rol==='asesor'){ unidad=document.getElementById('puUnidad').value; suc=document.getElementById('puSuc').value;
+    if(!unidad||!suc){ msg.innerHTML='<div class="err-box">El asesor necesita unidad y sucursal.</div>'; return; } }
+  msg.innerHTML='<div class="aviso">Procesando…</div>';
+  try{
+    const { data:{ session } } = await sb.auth.getSession();
+    const res = await fetch(`${SUPABASE_URL}/functions/v1/crear-usuario`, {
+      method:'POST',
+      headers:{ 'Content-Type':'application/json', 'Authorization':`Bearer ${session.access_token}`, 'apikey':SUPABASE_KEY },
+      body: JSON.stringify({ email, rol, unidad_negocio:unidad, sucursal_id:suc,
+        redirectTo: window.location.origin + '/panel.html' })
+    });
+    const out = await res.json();
+    if(!res.ok || out.error){ msg.innerHTML=`<div class="err-box">${escHtml(out.error||'No se pudo procesar.')}</div>`; return; }
+    msg.innerHTML = out.modo==='invitado'
+      ? '<div class="ok-box">Usuario invitado ✓ — le llegó un mail para definir su contraseña.</div>'
+      : '<div class="ok-box">Usuario actualizado ✓</div>';
+    document.getElementById('puEmail').value='';
+    await vistaUsuarios();
+  }catch(e){ msg.innerHTML='<div class="err-box">Error de conexión. Probá de nuevo.</div>'; console.error(e); }
+};
+window.borrarUsuario=async function(id,email){
+  if(!confirm(`¿Borrar al usuario "${email}"?\n\nSe elimina su cuenta y su acceso. Esta acción no se puede deshacer.`)) return;
+  try{
+    const { data:{ session } } = await sb.auth.getSession();
+    const res = await fetch(`${SUPABASE_URL}/functions/v1/crear-usuario`, {
+      method:'POST',
+      headers:{ 'Content-Type':'application/json', 'Authorization':`Bearer ${session.access_token}`, 'apikey':SUPABASE_KEY },
+      body: JSON.stringify({ accion:'borrar', id })
+    });
+    const out = await res.json();
+    if(!res.ok || out.error){ alert(out.error||'No se pudo borrar.'); return; }
+    await vistaUsuarios();
+  }catch(e){ alert('Error de conexión.'); console.error(e); }
+};
+
+init();
+</script>
+</body>
+</html>
