@@ -420,25 +420,15 @@
 
 <!-- ============ OFERTA ============ -->
 <section id="oferta">
-  <h2 class="sec">🎁 Cómo funciona la oferta</h2>
-  <p class="sec-desc">La regla es una sola para todo el año. Lo único que cambia mes a mes es el precio.</p>
-  <div class="grid">
-    <div class="ofcard"><div class="ic">💵</div><h4>30% OFF en efectivo</h4><p>Pagando en <b>efectivo</b> tenés 30% de descuento. Otras formas de pago (transferencia, tarjeta) van a <b>precio de lista</b>.</p></div>
-    <div class="ofcard"><div class="ic">🔒</div><h4>Reserva con $100.000</h4><p>El cliente transfiere <b>$100.000</b> al alias de la sucursal → le guardamos día y horario (pre-reserva). Tiene <b>48 hs</b> para transferir; si no, se libera la fecha.</p></div>
-    <div class="ofcard"><div class="ic">📩</div><h4>Comprobante</h4><p>Cuando transfiere, pide el <b>comprobante</b>. Recién ahí la reserva queda confirmada.</p></div>
-    <div class="ofcard"><div class="ic">💰</div><h4>Resto de la seña</h4><p>En efectivo en el local: cumple de <b>junio</b> → 5 días · <b>julio en adelante</b> → hasta el 30/6.</p></div>
-    <div class="ofcard"><div class="ic">❄️</div><h4>Combo de invierno</h4><p>Reservando <b>en junio</b>, el cumpleañero entra gratis + 2x1 para invitados en juegos abiertos del receso. Sea para el mes que sea el cumple.</p></div>
-    <div class="ofcard"><div class="ic">👥</div><h4>Mínimo y máximo</h4><p><b>Mínimo 10 chicos</b> (si vienen menos se cobra la base de 10). Máximo 50. Los homenajeados cuentan como invitados.</p></div>
-  </div>
+  <h2 class="sec" id="ofTitulo">🎁 Cómo funciona la oferta</h2>
+  <p class="sec-desc" id="ofSubtitulo"></p>
+  <div class="grid" id="ofCuadrados"></div>
   <div class="card" style="margin-top:16px">
-    <h3>🎈 Modalidades por edad</h3>
-    <table>
+    <h3 id="ofModTitulo">🎈 Modalidades por edad</h3>
+    <table id="ofModTabla">
       <tr><th>Modalidad</th><th>Edad</th><th>Para quién</th></tr>
-      <tr><td><b>NEO</b> 🟢</td><td>6 a 8 años</td><td>Primera experiencia láser, dinámica adaptada</td></tr>
-      <tr><td><b>PRO</b> 🔵</td><td>9 a 17 años</td><td>La más elegida. Equipamiento Evolution</td></tr>
-      <tr><td><b>MAX</b> 🟣</td><td>18+ / familias</td><td>La experiencia más exclusiva</td></tr>
     </table>
-    <div class="aviso">Duración 2,5 hs · No se ingresa alcohol (cerveza como adicional) · No comida externa · Quien entra al salón abona gastronomía.</div>
+    <div class="aviso" id="ofAviso"></div>
   </div>
 </section>
 
@@ -987,7 +977,7 @@ let perfil=null, UNIDAD=null, SECCIONES=[];
 let PRECIOS = {};
 const MESES=["","Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
 let SUC = {};
-let FIJOS=[], DIFUSION=[], FAQ=[], CIERRE=[], OFERTA=[], AYUDA=[], COTIZADOR=[], JJAA=[], CONFIRMA={}, RECON_MES={};
+let FIJOS=[], DIFUSION=[], FAQ=[], CIERRE=[], OFERTA=[], AYUDA=[], COTIZADOR=[], JJAA=[], CONFIRMA={}, RECON_MES={}, MODALIDADES=[];
 let CFG = { descuento:0.30, reserva:100000, plazoJunio:"dentro de los 5 días", plazoOtros:"hasta el 30/6", reconModo:"despues_presupuesto", reconT1:"1", reconT2:"3", reconT3:"6" };
 let sucActual = null;
 let tipoActual = "chicos";
@@ -1327,6 +1317,43 @@ function calcConfirma(){
 }
 
 // ====== Llenar mensajes de JJAA por id (los divs tienen ids fijos) ======
+function renderOferta(){
+  // Negritas: convertir *texto* en <b>texto</b>, escapando el resto
+  function fmtTexto(t){
+    let e=(t||"").replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    return e.replace(/\*([^*]+)\*/g,'<b>$1</b>');
+  }
+  // Título y subtítulo de la sección
+  const tEl=document.getElementById('ofTitulo'); if(tEl) tEl.textContent=CFG.ofertaTitulo||"🎁 Cómo funciona la oferta";
+  const sEl=document.getElementById('ofSubtitulo'); if(sEl) sEl.textContent=CFG.ofertaSubtitulo||"";
+  const avEl=document.getElementById('ofAviso'); if(avEl) avEl.textContent=CFG.ofertaAviso||"";
+  const mtEl=document.getElementById('ofModTitulo'); if(mtEl) mtEl.textContent=CFG.ofertaModTitulo||"🎈 Modalidades por edad";
+  // Cuadrados: cada uno tiene título "ICONO | Título"
+  const cont=document.getElementById('ofCuadrados');
+  if(cont){
+    cont.innerHTML="";
+    (OFERTA||[]).slice().sort((a,b)=>(a.orden||0)-(b.orden||0)).forEach(o=>{
+      let icono="🎁", titulo=o.titulo||"";
+      const partes=(o.titulo||"").split("|");
+      if(partes.length>=2){ icono=partes[0].trim(); titulo=partes.slice(1).join("|").trim(); }
+      const div=document.createElement('div');
+      div.className='ofcard';
+      div.innerHTML=`<div class="ic">${icono}</div><h4>${(titulo||"").replace(/</g,'&lt;')}</h4><p>${fmtTexto(o.texto)}</p>`;
+      cont.appendChild(div);
+    });
+  }
+  // Tabla de modalidades desde la base
+  const tabla=document.getElementById('ofModTabla');
+  if(tabla){
+    tabla.innerHTML='<tr><th>Modalidad</th><th>Edad</th><th>Para quién</th></tr>';
+    (MODALIDADES||[]).slice().sort((a,b)=>(a.orden||0)-(b.orden||0)).forEach(m=>{
+      const edad = (m.edad_desde!=null && m.edad_hasta!=null) ? `${m.edad_desde} a ${m.edad_hasta} años` : "";
+      const tr=document.createElement('tr');
+      tr.innerHTML=`<td><b>${(m.nombre||"").replace(/</g,'&lt;')}</b></td><td>${edad}</td><td>${(m.para_quien||"").replace(/</g,'&lt;')}</td>`;
+      tabla.appendChild(tr);
+    });
+  }
+}
 function renderJjaa(){
   (JJAA||[]).forEach(m=>{
     const el=document.getElementById(m.id);
@@ -1340,14 +1367,15 @@ window.setCSuc=setCSuc; window.setCMod=setCMod; window.calcConfirma=calcConfirma
 
 async function cargarDatos(){
   try{
-    const [precios,sucursales,config,mensajes,recon,secciones,uni]=await Promise.all([
+    const [precios,sucursales,config,mensajes,recon,secciones,uni,mods]=await Promise.all([
       sb.from('precios').select('*').eq('unidad_negocio',UNIDAD).order('mes'),
       sb.from('sucursales').select('*').eq('unidad_negocio',UNIDAD),
       sb.from('config').select('*').eq('unidad_negocio',UNIDAD),
       sb.from('mensajes').select('*').eq('unidad_negocio',UNIDAD).order('orden'),
       sb.from('recontactos').select('*').eq('unidad_negocio',UNIDAD).order('mes'),
       sb.from('unidad_secciones').select('seccion_id,activa').eq('unidad_negocio',UNIDAD).eq('activa',true),
-      sb.from('unidades').select('nombre').eq('id',UNIDAD).maybeSingle()
+      sb.from('unidades').select('nombre').eq('id',UNIDAD).maybeSingle(),
+      sb.from('modalidades').select('*').eq('unidad_negocio',UNIDAD).order('orden')
     ]);
     if(precios.error||sucursales.error||config.error||mensajes.error||recon.error) throw (precios.error||sucursales.error||config.error||mensajes.error||recon.error);
     window.UNIDAD_NOMBRE = (uni && uni.data && uni.data.nombre) ? uni.data.nombre : UNIDAD;
@@ -1361,13 +1389,17 @@ async function cargarDatos(){
     CFG.reconModo=cfg.recon_modo??"despues_presupuesto";
     CFG.reconT1=cfg.recon_t1??"1"; CFG.reconT2=cfg.recon_t2??"3"; CFG.reconT3=cfg.recon_t3??"6";
     CFG.subtitulo=cfg.subtitulo??""; CFG.nombreJjaa=cfg.nombre_jjaa??"Juegos Abiertos";
+    CFG.ofertaTitulo=cfg.oferta_titulo??"🎁 Cómo funciona la oferta";
+    CFG.ofertaSubtitulo=cfg.oferta_subtitulo??"";
+    CFG.ofertaAviso=cfg.oferta_aviso??"";
+    CFG.ofertaModTitulo=cfg.oferta_modalidades_titulo??"🎈 Modalidades por edad";
     FIJOS=[]; DIFUSION=[]; FAQ=[]; CIERRE=[]; OFERTA=[]; AYUDA=[]; COTIZADOR=[]; JJAA=[]; CONFIRMA={};
     mensajes.data.forEach(m=>{
       const item={t:m.titulo,cuando:m.cuando||"",txt:m.texto};
       if(m.categoria==='difusion') DIFUSION.push(item);
       else if(m.categoria==='faq') FAQ.push(item);
       else if(m.categoria==='cierre') CIERRE.push(item);
-      else if(m.categoria==='oferta') OFERTA.push(item);
+      else if(m.categoria==='oferta') OFERTA.push({titulo:m.titulo, texto:m.texto, orden:m.orden});
       else if(m.categoria==='ayuda') AYUDA.push(item);
       else if(m.categoria==='cotizador') COTIZADOR.push({id:m.id, texto:m.texto});
       else if(m.categoria==='jjaa') JJAA.push({id:m.id, txt:m.texto});
@@ -1376,6 +1408,7 @@ async function cargarDatos(){
     });
     RECON_MES={}; recon.data.forEach(r=>{ RECON_MES[r.mes]={recordatorio:r.recordatorio,escasez:r.escasez,ultimo:r.ultimo}; });
     SECCIONES=(secciones.data||[]).map(s=>s.seccion_id);
+    MODALIDADES=(mods&&mods.data)?mods.data:[];
     return true;
   }catch(e){ console.error("Error cargando:",e); return false; }
 }
@@ -1435,6 +1468,7 @@ async function arrancarSesion(session){
   renderBloques(FAQ,'bloquesFaq');
   renderBloques(CIERRE,'bloquesCierre');
   renderJjaa();
+  renderOferta();
   renderRecon();
   calc();
   calcConfirma();
