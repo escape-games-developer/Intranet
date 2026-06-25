@@ -134,7 +134,7 @@ const MESES=["","Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto
 const ROL_NOMBRE={admin_general:"Administrador general",admin_secundario:"Administrador",asesor:"Asesor"};
 
 let perfil=null, unidades=[], unidadActiva=null;
-let state={precios:[],config:[],mensajes:[],recontactos:[]};
+let state={precios:[],config:[],mensajes:[],recontactos:[],modalidades:[]};
 
 function escHtml(s){return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 function escAttr(s){return String(s??'').replace(/&/g,'&amp;').replace(/"/g,'&quot;');}
@@ -239,6 +239,7 @@ async function prepararSubPestanas(u){
   // armar sub-pestañas segun secciones activas
   const subs=[];
   if(activas.includes('presupuestador')){ subs.push({sub:'precios',label:'Precios'}); subs.push({sub:'config',label:'Descuento y plazos'}); subs.push({sub:'mensajes_cotizador',label:'Textos del cotizador'}); }
+  if(activas.includes('presupuestador')) subs.push({sub:'modalidades', label:'Modalidades'});
   if(activas.includes('mensajes')) subs.push({sub:'mensajes',label:'Mensajes'});
   if(activas.includes('cierre')) subs.push({sub:'mensajes_cierre',label:'Cerrar venta'});
   if(activas.includes('oferta')) subs.push({sub:'mensajes_oferta',label:'La oferta'});
@@ -261,13 +262,14 @@ window.cambiarUnidad=async function(){
   await prepararSubPestanas(unidadActiva);
 };
 async function cargarContenido(u){
-  const [p,c,m,r]=await Promise.all([
+  const [p,c,m,r,mo]=await Promise.all([
     sb.from('precios').select('*').eq('unidad_negocio',u).order('mes'),
     sb.from('config').select('*').eq('unidad_negocio',u).order('clave'),
     sb.from('mensajes').select('*').eq('unidad_negocio',u).order('categoria').order('orden'),
-    sb.from('recontactos').select('*').eq('unidad_negocio',u).order('mes')
+    sb.from('recontactos').select('*').eq('unidad_negocio',u).order('mes'),
+    sb.from('modalidades').select('*').eq('unidad_negocio',u).order('orden')
   ]);
-  state.precios=p.data||[]; state.config=c.data||[]; state.mensajes=m.data||[]; state.recontactos=r.data||[];
+  state.precios=p.data||[]; state.config=c.data||[]; state.mensajes=m.data||[]; state.recontactos=r.data||[]; state.modalidades=mo.data||[];
 }
 window.subTab=function(id,btn){
   document.querySelectorAll('#subNav button').forEach(b=>b.classList.remove('active'));
@@ -283,6 +285,7 @@ window.subTab=function(id,btn){
   else if(id==='mensajes_faq') box.innerHTML=htmlMensajes('faq');
   else if(id==='config') box.innerHTML=htmlConfig();
   else if(id==='recon') box.innerHTML=htmlRecon();
+  else if(id==='modalidades') box.innerHTML=htmlModalidades();
   enlazarInputs(id);
 };
 function htmlPrecios(){
@@ -320,6 +323,27 @@ function htmlCotizador(){
       <div class="meta">${escHtml(m.cuando||'')}</div></div>
       <textarea data-i="${i}" rows="9">${escHtml(m.texto)}</textarea></div>`;
   });
+  return h;
+}
+function htmlModalidades(){
+  const lista=(state.modalidades||[]).slice().sort((a,b)=>(a.orden||0)-(b.orden||0));
+  let h=`<div class="aviso" style="background:#E6F1FB;border-color:#9DC3E6;color:#185FA5">Las modalidades se eligen solas según la edad del cumpleañero. Definí el nombre y el rango de edad de cada una. (El ajuste de precio se activa más adelante.)</div>`;
+  lista.forEach((m)=>{
+    const i=state.modalidades.indexOf(m);
+    h+=`<div class="card">
+      <div class="field"><label>Nombre de la modalidad</label>
+        <input class="txt" type="text" data-mod-nombre="${i}" value="${escAttr(m.nombre||'')}" placeholder="ej: NEO"></div>
+      <div class="row-form">
+        <div class="field" style="margin:0"><label>Edad desde</label><input class="txt" type="number" data-mod-desde="${i}" value="${m.edad_desde||0}" min="0"></div>
+        <div class="field" style="margin:0"><label>Edad hasta</label><input class="txt" type="number" data-mod-hasta="${i}" value="${m.edad_hasta||99}" min="0"></div>
+      </div>
+      <div style="text-align:right;margin-top:8px">
+        <button class="btn-mini" style="border-color:#E5A0A0;color:#C81E1E" onclick="borrarModalidad('${escAttr(m.id)}')">🗑 Borrar</button>
+      </div>
+    </div>`;
+  });
+  if(!lista.length) h+=`<div class="aviso">Sin modalidades todavía. Agregá la primera con el botón de abajo.</div>`;
+  h+=`<button class="btn-add" onclick="agregarModalidad()">+ Agregar modalidad</button>`;
   return h;
 }
 function htmlMensajes(cat){
@@ -371,6 +395,26 @@ window.borrarBloque=async function(id){
   const { error }=await sb.from('mensajes').delete().eq('unidad_negocio',unidadActiva).eq('id',id);
   if(error){ alert('No se pudo borrar: '+error.message); return; }
   state.mensajes.splice(idx,1);
+  const sub=document.querySelector('#subNav button.active'); if(sub) sub.click();
+};
+window.agregarModalidad=function(){
+  const u=unidadActiva;
+  const nuevoId='mod_'+Date.now().toString(36)+Math.random().toString(36).slice(2,5);
+  const ordenes=(state.modalidades||[]).map(m=>m.orden||0);
+  const nuevoOrden=(ordenes.length?Math.max(...ordenes):0)+1;
+  if(!state.modalidades) state.modalidades=[];
+  state.modalidades.push({unidad_negocio:u,id:nuevoId,nombre:'Nueva modalidad',edad_desde:0,edad_hasta:99,ajuste_tipo:'ninguno',ajuste_valor:0,orden:nuevoOrden,_nuevo:true});
+  const sub=document.querySelector('#subNav button.active'); if(sub) sub.click();
+};
+window.borrarModalidad=async function(id){
+  if(!confirm('¿Borrar esta modalidad?')) return;
+  const idx=state.modalidades.findIndex(m=>m.id===id);
+  if(idx<0) return;
+  const m=state.modalidades[idx];
+  if(m._nuevo){ state.modalidades.splice(idx,1); const sub=document.querySelector('#subNav button.active'); if(sub) sub.click(); return; }
+  const { error }=await sb.from('modalidades').delete().eq('unidad_negocio',unidadActiva).eq('id',id);
+  if(error){ alert('No se pudo borrar: '+error.message); return; }
+  state.modalidades.splice(idx,1);
   const sub=document.querySelector('#subNav button.active'); if(sub) sub.click();
 };
 function cfgVal(clave, def){ const c=state.config.find(x=>x.clave===clave); return c? c.valor : def; }
@@ -445,6 +489,12 @@ function enlazarInputs(id){
     box.querySelectorAll('input[data-cuando]').forEach(t=>t.addEventListener('input',e=>{ state.mensajes[+e.target.dataset.cuando].cuando=e.target.value; }));
   }
   else if(id==='recon'){ pintarHintTiming(); const sel=document.getElementById('reconMesSel'); if(sel) pintarRecon(); }
+  else if(id==='modalidades'){
+    const box=document.getElementById('subBox');
+    box.querySelectorAll('input[data-mod-nombre]').forEach(t=>t.addEventListener('input',e=>{ state.modalidades[+e.target.dataset.modNombre].nombre=e.target.value; }));
+    box.querySelectorAll('input[data-mod-desde]').forEach(t=>t.addEventListener('input',e=>{ state.modalidades[+e.target.dataset.modDesde].edad_desde=+e.target.value||0; }));
+    box.querySelectorAll('input[data-mod-hasta]').forEach(t=>t.addEventListener('input',e=>{ state.modalidades[+e.target.dataset.modHasta].edad_hasta=+e.target.value||0; }));
+  }
 }
 window.saveContenido=async function(){
   const btn=document.getElementById('btnSave'); btn.disabled=true; setStatus('Guardando…');
@@ -454,9 +504,11 @@ window.saveContenido=async function(){
     if(state.config.length) tareas.push(sb.from('config').upsert(state.config.map(c=>({unidad_negocio:u,clave:c.clave,valor:String(c.valor)})),{onConflict:'unidad_negocio,clave'}));
     if(state.mensajes.length) tareas.push(sb.from('mensajes').upsert(state.mensajes.map(m=>({unidad_negocio:u,id:m.id,categoria:m.categoria,titulo:m.titulo,cuando:m.cuando,texto:m.texto,orden:m.orden})),{onConflict:'unidad_negocio,id'}));
     if(state.recontactos.length) tareas.push(sb.from('recontactos').upsert(state.recontactos.map(r=>({unidad_negocio:u,mes:r.mes,recordatorio:r.recordatorio,escasez:r.escasez,ultimo:r.ultimo})),{onConflict:'unidad_negocio,mes'}));
+    if(state.modalidades && state.modalidades.length) tareas.push(sb.from('modalidades').upsert(state.modalidades.map(m=>({unidad_negocio:u,id:m.id,nombre:m.nombre,edad_desde:m.edad_desde,edad_hasta:m.edad_hasta,ajuste_tipo:m.ajuste_tipo||'ninguno',ajuste_valor:m.ajuste_valor||0,orden:m.orden})),{onConflict:'unidad_negocio,id'}));
     const res=await Promise.all(tareas);
     const fail=res.find(x=>x.error); if(fail) throw fail.error;
     state.mensajes.forEach(m=>{ if(m._nuevo) delete m._nuevo; });
+    if(state.modalidades) state.modalidades.forEach(m=>{ if(m._nuevo) delete m._nuevo; });
     setStatus('Cambios guardados ✓','ok');
   }catch(e){ setStatus('No se pudo guardar. ¿Tenés permisos sobre esta unidad?','err'); console.error(e); }
   finally{ btn.disabled=false; }
