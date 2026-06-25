@@ -246,6 +246,8 @@ async function prepararSubPestanas(u){
   if(activas.includes('faq')) subs.push({sub:'mensajes_faq',label:'Respuestas rápidas'});
   if(activas.includes('ayuda')) subs.push({sub:'mensajes_ayuda',label:'Procedimiento'});
   if(activas.includes('recontactos')) subs.push({sub:'recon',label:'Recontactos'});
+  if(activas.includes('confirma')) subs.push({sub:'mensajes_confirma',label:'Confirmación evento'});
+  if(activas.includes('jjaa')) subs.push({sub:'mensajes_jjaa',label:'Juegos Abiertos'});
 
   const nav=document.getElementById('subNav');
   if(!subs.length){
@@ -281,6 +283,8 @@ window.subTab=function(id,btn){
   else if(id==='mensajes_ayuda') box.innerHTML=htmlMensajes('ayuda');
   else if(id==='mensajes_cotizador') box.innerHTML=htmlCotizador();
   else if(id==='mensajes_faq') box.innerHTML=htmlMensajes('faq');
+  else if(id==='mensajes_confirma') box.innerHTML=htmlMensajes('confirma');
+  else if(id==='mensajes_jjaa') box.innerHTML=htmlMensajes('jjaa');
   else if(id==='config') box.innerHTML=htmlConfig();
   else if(id==='recon') box.innerHTML=htmlRecon();
   enlazarInputs(id);
@@ -324,7 +328,7 @@ function htmlCotizador(){
 }
 function htmlMensajes(cat){
   const lista=state.mensajes.filter(m=>m.categoria===cat);
-  const nombres={fijo:'mensajes',difusion:'mensajes de difusión',cierre:'mensajes de cierre',faq:'respuestas rápidas',oferta:'bloques de la oferta',ayuda:'bloques del procedimiento'};
+  const nombres={fijo:'mensajes',difusion:'mensajes de difusión',cierre:'mensajes de cierre',faq:'respuestas rápidas',oferta:'bloques de la oferta',ayuda:'bloques del procedimiento',confirma:'mensaje de confirmación',jjaa:'mensajes de Juegos Abiertos'};
   if(!lista.length) return `<div class="aviso">Sin ${nombres[cat]||'mensajes'} para esta unidad.</div>`;
   let h='';
   lista.forEach((m)=>{
@@ -401,7 +405,7 @@ function enlazarInputs(id){
   const box=document.getElementById('subBox');
   if(id==='precios') box.querySelectorAll('input').forEach(inp=>inp.addEventListener('input',e=>{ state.precios[+e.target.dataset.i][e.target.dataset.f]=+e.target.value||0; }));
   else if(id==='config') box.querySelectorAll('input').forEach(inp=>inp.addEventListener('input',e=>{ state.config[+e.target.dataset.i].valor=e.target.value; }));
-  else if(id==='mensajes'||id==='mensajes_dif'||id==='mensajes_cierre'||id==='mensajes_faq'||id==='mensajes_oferta'||id==='mensajes_ayuda'||id==='mensajes_cotizador') box.querySelectorAll('textarea').forEach(t=>t.addEventListener('input',e=>{ state.mensajes[+e.target.dataset.i].texto=e.target.value; }));
+  else if(id==='mensajes'||id==='mensajes_dif'||id==='mensajes_cierre'||id==='mensajes_faq'||id==='mensajes_oferta'||id==='mensajes_ayuda'||id==='mensajes_cotizador'||id==='mensajes_confirma'||id==='mensajes_jjaa') box.querySelectorAll('textarea').forEach(t=>t.addEventListener('input',e=>{ state.mensajes[+e.target.dataset.i].texto=e.target.value; }));
   else if(id==='recon'){ pintarHintTiming(); const sel=document.getElementById('reconMesSel'); if(sel) pintarRecon(); }
 }
 window.saveContenido=async function(){
